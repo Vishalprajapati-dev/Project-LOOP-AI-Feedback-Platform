@@ -1,1 +1,152 @@
 @import "tailwindcss";
+
+:root {
+  --bg-primary: #f5f7fb;
+  --bg-secondary: #ffffff;
+  --bg-card: #ffffff;
+  --bg-input: #ffffff;
+
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+
+  --border-color: #e2e8f0;
+  --shadow-color: rgba(15, 23, 42, 0.08);
+}
+
+html[data-theme="dark"] {
+  --bg-primary: #0f172a;
+  --bg-secondary: #172033;
+  --bg-card: #1e293b;
+  --bg-input: #172033;
+
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+
+  --border-color: #334155;
+  --shadow-color: rgba(0, 0, 0, 0.25);
+}
+/* ========================================
+   Project Loop Theme System
+======================================== */
+
+:root {
+  --pl-bg: #f5f7fb;
+  --pl-surface: #ffffff;
+  --pl-text: #0f172a;
+  --pl-text-secondary: #64748b;
+  --pl-border: #e2e8f0;
+  --pl-primary: #2563eb;
+}
+
+:root[data-theme="dark"] {
+  --pl-bg: #0f172a;
+  --pl-surface: #1e293b;
+  --pl-text: #f8fafc;
+  --pl-text-secondary: #94a3b8;
+  --pl-border: #334155;
+  --pl-primary: #60a5fa;
+}
+
+/* ========================================
+   Global Page
+======================================== */
+
+html,
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--pl-bg);
+  color: var(--pl-text);
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
+}
+
+/* ========================================
+   Light Theme
+======================================== */
+
+html[data-theme="light"] body {
+  background: #f5f7fb;
+  color: #0f172a;
+}
+
+/* ========================================
+   Dark Theme
+======================================== */
+
+html[data-theme="dark"] body {
+  background: #0f172a;
+  color: #f8fafc;
+}
+
+/* Main application surfaces */
+
+html[data-theme="dark"] main,
+html[data-theme="dark"] section {
+  color: var(--pl-text);
+}
+
+/* Cards / panels */
+
+html[data-theme="dark"] [class*="card"],
+html[data-theme="dark"] [class*="panel"],
+html[data-theme="dark"] [class*="section"] {
+  color: var(--pl-text);
+}
+
+/* Inputs */
+
+html[data-theme="dark"] input,
+html[data-theme="dark"] textarea,
+html[data-theme="dark"] select {
+  background-color: #1e293b;
+  color: #f8fafc;
+  border-color: #334155;
+}
+
+/* Placeholder */
+
+html[data-theme="dark"] input::placeholder,
+html[data-theme="dark"] textarea::placeholder {
+  color: #94a3b8;
+}
+
+/* ========================================
+   Compact Mode
+======================================== */
+
+html[data-compact] .settings-row {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+/* =========================================
+   GLOBAL DARK THEME BACKGROUND
+========================================= */
+
+html[data-theme="dark"],
+html[data-theme="dark"] body,
+html[data-theme="dark"] #root {
+    background: #0f172a !important;
+}
+
+/* Main application area */
+html[data-theme="dark"] main {
+    background: #0f172a !important;
+}
+
+/* Common app/content wrappers */
+html[data-theme="dark"] .app,
+html[data-theme="dark"] .app-container,
+html[data-theme="dark"] .main-content,
+html[data-theme="dark"] .content,
+html[data-theme="dark"] .page-content {
+    background: #0f172a !important;
+}

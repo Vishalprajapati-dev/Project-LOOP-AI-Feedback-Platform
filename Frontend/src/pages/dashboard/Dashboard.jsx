@@ -1,118 +1,143 @@
+import "./Dashboard.css";
+
 import StatCard from "../../components/dashboard/StatCard";
-import Navbar from "../../components/common/Navbar";
 import FeedbackTable from "../../components/dashboard/FeedbackTable";
 import FeedbackChart from "../../components/dashboard/FeedbackChart";
 import FeedbackPieChart from "../../components/dashboard/FeedbackPieChart";
 
+import { feedbackData } from "../../data/feedbackData";
+
 function Dashboard() {
+
+    // =========================
+    // DASHBOARD METRICS
+    // =========================
+
+    const totalFeedback = feedbackData.length;
+
+    const pendingFeedback = feedbackData.filter(
+        (item) => item.status === "Pending"
+    ).length;
+
+    const resolvedFeedback = feedbackData.filter(
+        (item) =>
+            item.status === "Reviewed" ||
+            item.status === "Approved"
+    ).length;
+
+    const averageConfidence =
+        totalFeedback > 0
+            ? Math.round(
+                feedbackData.reduce(
+                    (total, item) => total + item.confidence,
+                    0
+                ) / totalFeedback
+            )
+            : 0;
+
+
+    // =========================
+    // STAT CARDS
+    // =========================
+
     const stats = [
         {
             title: "Total Feedback",
-            value: "120",
+            value: totalFeedback,
             icon: "📊",
-            growth: "+12%",
+            growth: "Live data",
         },
         {
             title: "Pending Review",
-            value: "35",
+            value: pendingFeedback,
             icon: "⏳",
-            growth: "+5%",
+            growth: "Needs attention",
         },
         {
             title: "Resolved",
-            value: "85",
+            value: resolvedFeedback,
             icon: "✅",
-            growth: "+20%",
+            growth: "Processed",
         },
         {
-            title: "AI Score",
-            value: "94%",
+            title: "AI Confidence",
+            value: `${averageConfidence}%`,
             icon: "🤖",
-            growth: "+8%",
+            growth: "AI analysis",
         },
     ];
+
+
     return (
-        <div
-            style={{
-                minHeight: "100vh",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                background: "#f4f7fc",
-            }}
-        >
-            <div
-                style={{
-                    width: "100%",
-                    maxWidth: "1200px",
-                    background: "#fff",
-                    padding: "30px",
-                    borderRadius: "12px",
-                    boxShadow: "0 5px 15px rgba(0,0,0,0.1)",
-                }}
-            >
-                <Navbar />
-                <h1>Welcome Vishal 👋</h1>
-                <p
-                    style={{
-                        color: "#666",
-                        marginBottom: "30px",
-                    }}
-                >
-                    AI Intelligence Feedback Platform
-                </p>
-                <div
-                    style={{
-                        display: "flex",
-                        gap: "20px",
-                        marginTop: "30px",
-                        flexWrap: "wrap",
-                    }}
-                >
-                    {stats.map((item, index) => (
+        <div className="dashboard-page">
+
+            <div className="dashboard-container">
+
+                {/* =========================
+                    HEADER
+                ========================= */}
+
+                <div className="dashboard-header">
+
+                    <h1>
+                        Welcome Vishal 👋
+                    </h1>
+
+                    <p>
+                        AI Intelligence Feedback Platform
+                    </p>
+
+                </div>
+
+
+                {/* =========================
+                    STAT CARDS
+                ========================= */}
+
+                <div className="stats-grid">
+
+                    {stats.map((item) => (
                         <StatCard
-                            key={index}
+                            key={item.title}
                             title={item.title}
                             value={item.value}
                             icon={item.icon}
                             growth={item.growth}
                         />
                     ))}
+
                 </div>
 
-                <div
-                    style={{
-                        display: "flex",
-                        gap: "20px",
-                        marginTop: "40px",
-                        flexWrap: "wrap",
-                        alignItems: "stretch",
-                    }}
-                >
 
-                    <div
-                        style={{
-                            flex: 2,
-                            minWidth: "600px",
-                        }}
-                    >
+                {/* =========================
+                    CHARTS
+                ========================= */}
+
+                <div className="charts-grid">
+
+                    <div className="chart-large">
                         <FeedbackChart />
                     </div>
 
-                    <div
-                        style={{
-                            flex: 1,
-                            minWidth: "300px",
-                        }}
-                    >
+                    <div className="chart-small">
                         <FeedbackPieChart />
                     </div>
 
                 </div>
 
-                <FeedbackTable />
+
+                {/* =========================
+                    RECENT FEEDBACK
+                ========================= */}
+
+                <div className="feedback-section">
+
+                    <FeedbackTable />
+
+                </div>
 
             </div>
+
         </div>
     );
 }

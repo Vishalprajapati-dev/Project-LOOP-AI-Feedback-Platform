@@ -1,0 +1,31 @@
+.alert {
+    padding: 16px;
+    border-radius: 8px;
+
+    border: 1px solid #d1d5db;
+    background-color: #f9fafb;
+}
+
+.alert-success {
+    background-color: #DCFCE7;
+    border-color: #86EFAC;
+    color: #166534;
+}
+
+.alert-error {
+    background-color: #FEE2E2;
+    border-color: #FCA5A5;
+    color: #991B1B;
+}
+
+.alert-warning {
+    background-color: #FEF3C7;
+    border-color: #FCD34D;
+    color: #92400E;
+}
+
+.alert-info {
+    background-color: #DBEAFE;
+    border-color: #93C5FD;
+    color: #1D4ED8;
+}

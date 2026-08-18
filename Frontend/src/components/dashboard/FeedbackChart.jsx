@@ -8,66 +8,123 @@ import {
     ResponsiveContainer,
 } from "recharts";
 
+import { feedbackData } from "../../data/feedbackData";
 
 function FeedbackChart() {
-    const data = [
-        {
-            month: "Jan",
-            feedback: 40,
-        },
-        {
-            month: "Feb",
-            feedback: 65,
-        },
-        {
-            month: "Mar",
-            feedback: 55,
-        },
-        {
-            month: "Apr",
-            feedback: 80,
-        },
-        {
-            month: "May",
-            feedback: 72,
-        },
-        {
-            month: "Jun",
-            feedback: 95,
-        },
-    ];
+
+    const data = feedbackData
+        .slice()
+        .sort(
+            (a, b) =>
+                new Date(a.createdAt) - new Date(b.createdAt)
+        )
+        .map((item) => ({
+            date: new Date(item.createdAt).toLocaleDateString(
+                "en-US",
+                {
+                    month: "short",
+                    day: "numeric",
+                }
+            ),
+            confidence: item.confidence,
+        }));
+
     return (
-        <div
-            style={{
-                background: "#fff",
-                padding: "25px",
-                borderRadius: "12px",
-                marginTop: "40px",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-            }}
-        >
-            <h2>Feedback Overview</h2>
-            <div
-                style={{
-                    width: "100%",
-                    height: "300px",
-                    marginTop: "20px",
-                }}
-            >
+        <div className="dashboard-chart-card">
+
+            <div className="dashboard-chart-header">
+                <div>
+                    <h2>AI Confidence Overview</h2>
+
+                    <p>
+                        AI analysis confidence across recent feedback
+                    </p>
+                </div>
+
+                <span className="chart-badge">
+                    AI Analysis
+                </span>
+            </div>
+
+            <div className="dashboard-chart-container">
+
                 <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={data}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Line
-                        type="monotone"
-                        dataKey="feedback"
-                        stroke="#4F46E5"
-                        strokeWidth={3}
-                    />
-                </LineChart>
+
+                    <LineChart
+                        data={data}
+                        margin={{
+                            top: 10,
+                            right: 10,
+                            left: 0,
+                            bottom: 5,
+                        }}
+                    >
+
+                        <CartesianGrid
+                            strokeDasharray="3 3"
+                            stroke="var(--chart-grid)"
+                        />
+
+                        <XAxis
+                            dataKey="date"
+                            tick={{
+                                fill: "var(--chart-text)",
+                                fontSize: 12,
+                            }}
+                            axisLine={{
+                                stroke: "var(--chart-grid)",
+                            }}
+                            tickLine={false}
+                        />
+
+                        <YAxis
+                            domain={[0, 100]}
+                            tickFormatter={(value) => `${value}%`}
+                            tick={{
+                                fill: "var(--chart-text)",
+                                fontSize: 12,
+                            }}
+                            axisLine={{
+                                stroke: "var(--chart-grid)",
+                            }}
+                            tickLine={false}
+                        />
+
+                        <Tooltip
+                            formatter={(value) => [
+                                `${value}%`,
+                                "AI Confidence",
+                            ]}
+                            contentStyle={{
+                                background: "var(--bg-card)",
+                                border: "1px solid var(--border-color)",
+                                borderRadius: "10px",
+                                color: "var(--text-primary)",
+                            }}
+                            labelStyle={{
+                                color: "var(--text-secondary)",
+                            }}
+                        />
+
+                        <Line
+                            type="monotone"
+                            dataKey="confidence"
+                            stroke="#4F46E5"
+                            strokeWidth={3}
+                            dot={{
+                                r: 4,
+                                fill: "#4F46E5",
+                            }}
+                            activeDot={{
+                                r: 6,
+                                fill: "#4F46E5",
+                            }}
+                        />
+
+                    </LineChart>
+
                 </ResponsiveContainer>
+
             </div>
 
         </div>

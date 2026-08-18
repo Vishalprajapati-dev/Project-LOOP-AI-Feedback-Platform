@@ -1,26 +1,13 @@
 import { useState } from "react";
+import "./FeedbackTable.css";
+
+import { feedbackData } from "../../data/feedbackData";
+
 function FeedbackTable() {
     const [search, setSearch] = useState("");
     const [status, setStatus] = useState("All");
 
-    const feedback = [
-        {
-            name: "John",
-            status: "Pending",
-            color: "orange",
-        },
-        {
-            name: "Rahul",
-            status: "Reviewed",
-            color: "blue",
-        },
-        {
-            name: "Priya",
-            status: "Approved",
-            color: "green",
-        },
-    ];
-    const filteredFeedback = feedback.filter((item) => {
+    const filteredFeedback = feedbackData.filter((item) => {
         const matchName = item.name
             .toLowerCase()
             .includes(search.toLowerCase());
@@ -31,125 +18,124 @@ function FeedbackTable() {
         return matchName && matchStatus;
     });
 
+    const getInitials = (name) => {
+        return name
+            .split(" ")
+            .map((word) => word[0])
+            .join("")
+            .toUpperCase();
+    };
+
+    const getStatusClass = (status) => {
+        switch (status) {
+            case "Pending":
+                return "status-badge status-pending";
+
+            case "Reviewed":
+                return "status-badge status-reviewed";
+
+            case "Approved":
+                return "status-badge status-approved";
+
+            default:
+                return "status-badge";
+        }
+    };
+
     return (
-        <div
-            style={{
-                marginTop: "40px",
-            }}
-        >
+        <section className="feedback-section">
+
             <h2>Recent Feedback</h2>
-            <div
-                style={{
-                    display: "flex",
-                    gap: "15px",
-                    marginTop: "20px",
-                    marginBottom: "20px",
-                }}
-            >
-                <input
-                    type="text"
-                    placeholder="Search by name..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    style={{
-                        width: "100%",
-                        padding: "12px",
-                        marginTop: "20px",
-                        marginBottom: "20px",
-                        border: "1px solid #ddd",
-                        borderRadius: "8px",
-                        fontSize: "16px",
-                        outline: "none",
-                        boxSizing: "border-box"
-                    }}
-                />
+
+            <div className="feedback-controls">
+
+                <div className="feedback-search">
+                    <input
+                        type="text"
+                        placeholder="Search by name..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                    />
+                </div>
+
                 <select
+                    className="feedback-filter"
                     value={status}
                     onChange={(e) => setStatus(e.target.value)}
-                    style={{
-                        padding: "12px",
-                        borderRadius: "8px",
-                        border: "1px solid #ddd",
-                        fontSize: "16px",
-                        cursor: "pointer",
-                    }}
                 >
                     <option value="All">All</option>
                     <option value="Pending">Pending</option>
                     <option value="Reviewed">Reviewed</option>
                     <option value="Approved">Approved</option>
                 </select>
+
             </div>
 
-            <table
-                style={{
-                    flex: 1,
-                    borderCollapse: "collapse",
-                    marginTop: "20px",
-                }}
-            >
-                <thead>
-                    <tr
-                        style={{
-                            background: "#f4f7fc",
-                        }}
-                    >
-                        <th
-                            style={{
-                                padding: "15px",
-                                textAlign: "left",
-                            }}
-                        >
-                            Name
-                        </th>
+            <div className="feedback-table-wrapper">
 
-                        <th
-                            style={{
-                                padding: "15px",
-                                textAlign: "left",
-                            }}
-                        >
-                            Status
-                        </th>
-                    </tr>
-                </thead>
+                <table className="feedback-table">
 
-                <tbody>
-                    {filteredFeedback.length > 0 ? (
-                        filteredFeedback.map((item) => (
-                            <tr key={item.name}>
-                                <td style={{ padding: "15px" }}>
-                                    {item.name}
-                                </td>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
 
+                    <tbody>
+
+                        {filteredFeedback.length > 0 ? (
+
+                            filteredFeedback.map((item) => (
+
+                                <tr key={item.id}>
+
+                                    <td>
+                                        <div className="feedback-user">
+
+                                            <div className="feedback-avatar">
+                                                {getInitials(item.name)}
+                                            </div>
+
+                                            <span className="feedback-name">
+                                                {item.name}
+                                            </span>
+
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        <span
+                                            className={getStatusClass(item.status)}
+                                        >
+                                            {item.status}
+                                        </span>
+                                    </td>
+
+                                </tr>
+
+                            ))
+
+                        ) : (
+
+                            <tr>
                                 <td
-                                    style={{
-                                        padding: "15px",
-                                        color: item.color,
-                                    }}
+                                    colSpan="2"
+                                    className="feedback-empty"
                                 >
-                                    {item.status}
+                                    No Feedback Found 😔
                                 </td>
                             </tr>
-                        ))
-                    ) : (
-                        <tr>
-                            <td
-                                colSpan="2"
-                                style={{
-                                    padding: "30px",
-                                    textAlign: "center",
-                                    color: "#777",
-                                    fontWeight: "bold",
-                                }}
-                            >
-                                No Feedback Found 😔
-                            </td>
-                        </tr>
-                    )}
-                </tbody>
-            </table>
-        </div>
+
+                        )}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
     );
 }
 

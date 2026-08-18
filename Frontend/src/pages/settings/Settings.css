@@ -1,0 +1,226 @@
+.settings-page {
+    padding: 50px 42px 60px;
+    max-width: 1200px;
+    margin: 0 auto;
+
+    background: var(--pl-bg);
+    color: var(--pl-text);
+
+    min-height: 100%;
+}
+
+.settings-header {
+    margin-bottom: 28px;
+}
+
+.settings-header h1 {
+    margin: 0;
+    font-size: 32px;
+    font-weight: 600;
+    color: var(--pl-text);
+}
+
+.settings-header p {
+    margin: 8px 0 0;
+    color: var(--pl-text-secondary);
+    font-size: 14px;
+}
+
+.settings-card {
+    background: var(--pl-surface);
+    border: 1px solid var(--pl-border);
+    border-radius: 16px;
+    margin-bottom: 20px;
+
+    box-shadow: 0 5px 18px rgba(15, 23, 42, 0.05);
+
+    overflow: hidden;
+}
+
+.settings-section-header {
+    padding: 24px 26px;
+    border-bottom: 1px solid var(--pl-border);
+}
+
+.settings-section-header h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--pl-text);
+}
+
+.settings-section-header p {
+    margin: 6px 0 0;
+    color: var(--pl-text-secondary);
+    font-size: 12px;
+}
+
+.settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 30px;
+
+    padding: 20px 26px;
+
+    border-bottom: 1px solid var(--pl-border);
+}
+
+.settings-row:last-child {
+    border-bottom: none;
+}
+
+.settings-row strong {
+    display: block;
+    color: var(--pl-text);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.settings-row p {
+    margin: 5px 0 0;
+    color: var(--pl-text-secondary);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.settings-action-btn {
+    border: 1px solid var(--pl-border);
+    background: var(--pl-surface);
+    color: var(--pl-primary);
+
+    padding: 9px 14px;
+
+    border-radius: 8px;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+}
+
+.settings-action-btn:hover {
+    background: var(--pl-bg);
+    border-color: var(--pl-primary);
+}
+
+.settings-value {
+    color: var(--pl-text-secondary);
+    font-size: 13px;
+}
+
+
+/* =========================================
+   TOGGLE
+========================================= */
+
+.settings-toggle {
+    position: relative;
+
+    width: 46px;
+    height: 26px;
+
+    flex-shrink: 0;
+
+    padding: 0;
+
+    border: none;
+    border-radius: 999px;
+
+    background: #cbd5e1;
+
+    cursor: pointer;
+
+    transition: background 0.2s ease;
+}
+
+.settings-toggle span {
+    position: absolute;
+
+    top: 3px;
+    left: 3px;
+
+    width: 20px;
+    height: 20px;
+
+    border-radius: 50%;
+
+    background: #ffffff;
+
+    box-shadow: 0 2px 5px rgba(15, 23, 42, 0.2);
+
+    transition: transform 0.2s ease;
+}
+
+.settings-toggle.active {
+    background: var(--pl-primary);
+}
+
+.settings-toggle.active span {
+    transform: translateX(20px);
+}
+
+
+/* =========================================
+   APPEARANCE
+========================================= */
+
+.settings-select {
+    min-width: 150px;
+    height: 42px;
+
+    padding: 0 12px;
+
+    border: 1px solid var(--pl-border);
+    border-radius: 9px;
+
+    background: var(--pl-surface);
+    color: var(--pl-text);
+
+    font-size: 14px;
+
+    outline: none;
+    cursor: pointer;
+}
+
+.settings-select:focus {
+    border-color: var(--pl-primary);
+
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.settings-select option {
+    background: var(--pl-surface);
+    color: var(--pl-text);
+}
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 700px) {
+
+    .settings-page {
+        padding: 30px 18px 45px;
+    }
+
+    .settings-header h1 {
+        font-size: 27px;
+    }
+
+    .settings-row {
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    .settings-toggle {
+        margin-top: 2px;
+    }
+
+    .settings-select {
+        min-width: 130px;
+    }
+}

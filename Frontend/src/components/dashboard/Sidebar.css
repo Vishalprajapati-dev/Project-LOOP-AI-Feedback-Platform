@@ -1,0 +1,195 @@
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    width: 250px;
+    height: 100vh;
+
+    background: var(--pl-surface);
+    border-right: 1px solid var(--pl-border);
+
+    padding: 28px 20px;
+
+    box-sizing: border-box;
+
+    overflow-y: auto;
+
+    z-index: 1000;
+}
+
+.sidebar h2 {
+    margin: 0 0 42px 0;
+
+    font-size: 24px;
+    font-weight: 700;
+
+    color: #0f172a;
+}
+
+.sidebar nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+
+    gap: 16px;
+
+    width: 100%;
+    padding: 14px 16px;
+
+    box-sizing: border-box;
+
+    border-radius: 10px;
+
+    text-decoration: none;
+
+    color: #0f172a;
+
+    font-size: 16px;
+    font-weight: 500;
+
+    transition: all 0.2s ease;
+}
+
+.nav-item:hover {
+    background: #f1f5f9;
+}
+
+.nav-item.active {
+    background: #eaf1ff;
+    color: #2563eb;
+}
+
+.nav-item.active svg {
+    color: #2563eb;
+}
+
+/* =========================================
+   SIDEBAR THEME SUPPORT
+========================================= */
+
+.sidebar {
+    background: var(--pl-surface);
+    border-right: 1px solid var(--pl-border);
+    color: var(--pl-text);
+}
+
+.sidebar *,
+.sidebar a,
+.sidebar button,
+.sidebar span,
+.sidebar p {
+    color: var(--pl-text);
+}
+
+.sidebar svg {
+    color: var(--pl-text);
+    stroke: currentColor;
+}
+
+/* Active navigation item */
+html[data-theme="dark"] .sidebar .active {
+    color: var(--pl-primary);
+}
+
+html[data-theme="dark"] .sidebar .active svg {
+    color: var(--pl-primary);
+}
+
+/* =========================================
+   SIDEBAR DARK THEME - FINAL FIX
+========================================= */
+
+/* DARK SIDEBAR */
+html[data-theme="dark"] .sidebar {
+    background: #1e293b !important;
+    color: #f8fafc !important;
+}
+
+/* SIDEBAR LOGO / TITLE */
+html[data-theme="dark"] .sidebar h1,
+html[data-theme="dark"] .sidebar h2,
+html[data-theme="dark"] .sidebar .logo,
+html[data-theme="dark"] .sidebar .brand,
+html[data-theme="dark"] .sidebar .brand-name {
+    color: #f8fafc !important;
+}
+
+/* NORMAL NAVIGATION TEXT */
+html[data-theme="dark"] .sidebar a,
+html[data-theme="dark"] .sidebar button,
+html[data-theme="dark"] .sidebar span {
+    color: #f8fafc !important;
+}
+
+/* NORMAL NAVIGATION ICONS */
+html[data-theme="dark"] .sidebar svg {
+    color: #f8fafc !important;
+    stroke: currentColor;
+}
+
+/* =========================================
+   HOVER
+========================================= */
+
+html[data-theme="dark"] .sidebar a:hover,
+html[data-theme="dark"] .sidebar button:hover {
+    background: #334155 !important;
+    color: #ffffff !important;
+}
+
+html[data-theme="dark"] .sidebar a:hover span,
+html[data-theme="dark"] .sidebar button:hover span {
+    color: #ffffff !important;
+}
+
+html[data-theme="dark"] .sidebar a:hover svg,
+html[data-theme="dark"] .sidebar button:hover svg {
+    color: #ffffff !important;
+    stroke: currentColor;
+}
+
+/* =========================================
+   ACTIVE NAVIGATION ITEM
+========================================= */
+
+html[data-theme="dark"] .sidebar .active {
+    background: #263b63 !important;
+    color: #60a5fa !important;
+}
+
+html[data-theme="dark"] .sidebar .active span {
+    color: #60a5fa !important;
+}
+
+html[data-theme="dark"] .sidebar .active svg {
+    color: #60a5fa !important;
+    stroke: currentColor;
+}
+
+/* =========================================
+   LIGHT THEME SIDEBAR
+========================================= */
+
+html[data-theme="light"] .sidebar {
+    background: #ffffff !important;
+    color: #0f172a !important;
+}
+
+html[data-theme="light"] .sidebar a,
+html[data-theme="light"] .sidebar button,
+html[data-theme="light"] .sidebar span,
+html[data-theme="light"] .sidebar h1,
+html[data-theme="light"] .sidebar h2 {
+    color: #0f172a !important;
+}
+
+html[data-theme="light"] .sidebar svg {
+    color: #0f172a !important;
+    stroke: currentColor;
+}
