@@ -86,3 +86,652 @@ html[data-theme="dark"] .topbar button:hover {
     color: #ffffff !important;
     background: #1e293b !important;
 }
+
+/* =====================================================
+   SAAS PROFILE MENU
+===================================================== */
+
+.topbar-profile {
+    position: relative;
+}
+
+.topbar-avatar-button {
+    width: 38px;
+    height: 38px;
+    border: none;
+    border-radius: 50%;
+    background: #2563eb;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.topbar-avatar-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(37, 99, 235, 0.25);
+}
+
+.profile-menu-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+}
+
+.profile-menu {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    width: 280px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 10px;
+    box-shadow:
+        0 20px 50px rgba(15, 23, 42, 0.16);
+    z-index: 1000;
+}
+
+.profile-menu-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+}
+
+.profile-menu-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #eff6ff;
+    color: #2563eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+}
+
+.profile-menu-user div:last-child {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-menu-user strong {
+    color: #0f172a;
+    font-size: 14px;
+}
+
+.profile-menu-user span {
+    color: #64748b;
+    font-size: 12px;
+    margin-top: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.profile-menu-user small {
+    width: fit-content;
+    margin-top: 5px;
+    padding: 3px 7px;
+    border-radius: 999px;
+    background: #eef4ff;
+    color: #2563eb;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.profile-menu-divider {
+    height: 1px;
+    background: #eef2f7;
+    margin: 6px 0;
+}
+
+.profile-menu > button {
+    width: 100%;
+    border: none;
+    background: transparent;
+    border-radius: 10px;
+    padding: 11px 12px;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    text-align: left;
+    color: #334155;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.profile-menu > button:hover {
+    background: #f8fafc;
+}
+
+.profile-menu > button span {
+    width: 20px;
+    text-align: center;
+}
+
+.profile-menu .profile-menu-danger {
+    color: #dc2626;
+}
+
+.profile-menu .profile-menu-danger:hover {
+    background: #fff1f2;
+}
+
+/* =========================================
+   COMPACT MODE
+========================================= */
+
+html[data-compact] .topbar-left {
+    gap: 8px;
+}
+
+html[data-compact] .topbar-right {
+    gap: 12px;
+}
+
+/* =====================================================
+   SAAS NOTIFICATIONS
+===================================================== */
+
+.topbar-notifications {
+    position: relative;
+}
+
+.notification-button {
+    position: relative;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -4px;
+    right: -5px;
+
+    min-width: 18px;
+    height: 18px;
+
+    padding: 0 5px;
+
+    border-radius: 999px;
+
+    background: #dc2626;
+    color: #ffffff !important;
+
+    font-size: 10px;
+    font-weight: 800;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 2px solid #ffffff;
+
+    box-sizing: border-box;
+}
+
+.notification-menu {
+    position: absolute;
+
+    top: calc(100% + 12px);
+    right: 0;
+
+    width: 380px;
+    max-height: 520px;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+
+    box-shadow:
+        0 20px 50px rgba(15, 23, 42, 0.16);
+
+    overflow: hidden;
+
+    z-index: 1200;
+}
+
+.notification-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 16px;
+
+    border-bottom: 1px solid #eef2f7;
+}
+
+.notification-header > div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.notification-header strong {
+    color: #0f172a;
+    font-size: 15px;
+}
+
+.notification-header span {
+    color: #64748b;
+    font-size: 12px;
+}
+
+.notification-header button {
+    border: none;
+    background: transparent;
+
+    color: #2563eb;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+.notification-list {
+    max-height: 430px;
+    overflow-y: auto;
+}
+
+.notification-item {
+    width: 100%;
+
+    border: none;
+    border-bottom: 1px solid #f1f5f9;
+
+    background: #ffffff;
+
+    padding: 14px 16px;
+
+    display: flex;
+    align-items: flex-start;
+
+    gap: 10px;
+
+    text-align: left;
+
+    cursor: pointer;
+}
+
+.notification-item:hover {
+    background: #f8fafc;
+}
+
+.notification-item.unread {
+    background: #eff6ff;
+}
+
+.notification-dot {
+    width: 14px;
+    min-width: 14px;
+
+    color: #2563eb;
+
+    font-size: 9px;
+
+    padding-top: 4px;
+}
+
+.notification-content {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 4px;
+}
+
+.notification-content strong {
+    color: #0f172a;
+    font-size: 13px;
+}
+
+.notification-content > span {
+    color: #475569;
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.notification-content small {
+    color: #94a3b8;
+    font-size: 10px;
+}
+
+.notification-empty {
+    min-height: 180px;
+
+    padding: 30px 20px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    gap: 7px;
+
+    text-align: center;
+}
+
+.notification-empty div {
+    font-size: 28px;
+    margin-bottom: 4px;
+}
+
+.notification-empty strong {
+    color: #334155;
+    font-size: 14px;
+}
+
+.notification-empty span {
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+
+/* =====================================================
+   DARK THEME NOTIFICATIONS
+===================================================== */
+
+html[data-theme="dark"] .notification-menu {
+    background: #1e293b;
+    border-color: #334155;
+
+    box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.35);
+}
+
+html[data-theme="dark"] .notification-header {
+    border-bottom-color: #334155;
+}
+
+html[data-theme="dark"] .notification-header strong {
+    color: #f8fafc;
+}
+
+html[data-theme="dark"] .notification-header span {
+    color: #94a3b8;
+}
+
+html[data-theme="dark"] .notification-item {
+    background: #1e293b;
+    border-bottom-color: #334155;
+}
+
+html[data-theme="dark"] .notification-item:hover {
+    background: #263449;
+}
+
+html[data-theme="dark"] .notification-item.unread {
+    background: #23395f;
+}
+
+html[data-theme="dark"] .notification-content strong {
+    color: #f8fafc;
+}
+
+html[data-theme="dark"] .notification-content > span {
+    color: #cbd5e1;
+}
+
+html[data-theme="dark"] .notification-content small {
+    color: #94a3b8;
+}
+
+html[data-theme="dark"] .notification-empty strong {
+    color: #e2e8f0;
+}
+
+html[data-theme="dark"] .notification-empty span {
+    color: #94a3b8;
+}
+
+html[data-theme="dark"] .notification-badge {
+    border-color: #1e293b;
+}
+
+/* =========================================================
+   TOPBAR LAYOUT — FINAL FIX
+========================================================= */
+
+.topbar-search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    width: 250px;
+    height: 40px;
+
+    color: #64748b;
+}
+
+.topbar-search > span {
+    width: 18px;
+    height: 18px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 20px;
+    line-height: 1;
+
+    color: #64748b;
+}
+
+.topbar-search input {
+    width: 100%;
+    height: 100%;
+
+    border: none;
+    outline: none;
+
+    background: transparent;
+
+    color: #0f172a;
+    font-size: 14px;
+}
+
+.topbar-search input::placeholder {
+    color: #94a3b8;
+}
+
+
+/* =========================================================
+   TOPBAR ACTIONS
+========================================================= */
+
+.topbar-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    gap: 12px;
+
+    height: 100%;
+}
+
+
+/* =========================================================
+   ICON BUTTON
+========================================================= */
+
+.topbar-icon-button {
+    position: relative;
+
+    width: 40px;
+    height: 40px;
+
+    padding: 0;
+
+    border: none;
+    border-radius: 10px;
+
+    background: transparent;
+
+    color: #64748b;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 19px;
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.topbar-icon-button:hover {
+    background: #f1f5f9;
+    color: #2563eb;
+
+    transform: translateY(-1px);
+}
+
+.topbar-icon-button:active {
+    transform: translateY(0);
+}
+
+
+/* =========================================================
+   NOTIFICATION BUTTON
+========================================================= */
+
+.notification-button {
+    position: relative;
+}
+
+
+
+
+/*
+   Hide the emoji/text inside notification button.
+   The CSS icon above becomes the visible icon.
+*/
+
+
+/* =========================================================
+   SETTINGS BUTTON
+========================================================= */
+
+
+
+
+
+.topbar-icon-button svg {
+    width: 20px;
+    height: 20px;
+    display: block;
+    flex-shrink: 0;
+}
+
+.topbar-search-icon {
+    width: 17px;
+    height: 17px;
+    flex-shrink: 0;
+    color: #64748b;
+}
+
+.notification-icon {
+    width: 20px;
+    height: 20px;
+}
+
+.settings-icon {
+    width: 20px;
+    height: 20px;
+}
+
+/* =========================================================
+   NOTIFICATION BADGE
+========================================================= */
+
+.notification-badge {
+    position: absolute;
+
+    top: 1px;
+    right: 1px;
+
+    min-width: 18px;
+    height: 18px;
+
+    padding: 0 5px;
+
+    border-radius: 999px;
+
+    background: #dc2626;
+
+    color: #ffffff !important;
+
+    font-size: 10px !important;
+    font-weight: 800;
+
+    line-height: 18px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 2px solid #ffffff;
+
+    box-sizing: border-box;
+
+    z-index: 5;
+}
+
+
+/* =========================================================
+   PROFILE POSITION
+========================================================= */
+
+.topbar-profile {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+}
+
+
+/* =========================================================
+   DARK MODE
+========================================================= */
+
+html[data-theme="dark"] .topbar-search {
+    color: #cbd5e1;
+}
+
+html[data-theme="dark"] .topbar-search > span {
+    color: #cbd5e1;
+}
+
+html[data-theme="dark"] .topbar-search input {
+    color: #f8fafc;
+}
+
+html[data-theme="dark"] .topbar-search input::placeholder {
+    color: #94a3b8;
+}
+
+html[data-theme="dark"] .topbar-icon-button {
+    color: #cbd5e1;
+}
+
+html[data-theme="dark"] .topbar-icon-button:hover {
+    background: #1e293b;
+    color: #60a5fa;
+}
+
+html[data-theme="dark"] .notification-badge {
+    border-color: #0f172a;
+}

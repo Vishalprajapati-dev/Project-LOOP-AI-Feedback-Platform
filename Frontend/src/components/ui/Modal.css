@@ -79,3 +79,25 @@
     justify-content: flex-end;
     gap: 12px;
 }
+
+/* Modal action buttons */
+.modal-footer .btn-primary {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+
+  border: 1px solid #2563eb !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  width: auto !important;
+  min-width: 90px !important;
+  height: auto !important;
+}
+
+.modal-footer .btn-primary:hover {
+  background-color: #1d4ed8 !important;
+  border-color: #1d4ed8 !important;
+}

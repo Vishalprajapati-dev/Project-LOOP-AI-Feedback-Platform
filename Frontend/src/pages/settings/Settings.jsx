@@ -2,100 +2,190 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Settings.css";
 
+import useAuth from "../../hooks/useAuth";
+import { apiRequest } from "../../lib/api";
+
+const DEFAULT_SETTINGS = {
+    emailNotifications: true,
+    feedbackAlerts: true,
+    reportNotifications: false,
+    theme: "light",
+    compactMode: false,
+};
+
 function Settings() {
     const navigate = useNavigate();
-    const [emailNotifications, setEmailNotifications] = useState(() => {
-        const saved = localStorage.getItem("projectLoop_emailNotifications");
-        return saved !== null ? JSON.parse(saved) : true;
-    });
+    const { user } = useAuth();
 
-    const [feedbackAlerts, setFeedbackAlerts] = useState(() => {
-        const saved = localStorage.getItem("projectLoop_feedbackAlerts");
-        return saved !== null ? JSON.parse(saved) : true;
-    });
+    const [settings, setSettings] = useState(
+        DEFAULT_SETTINGS
+    );
 
-    const [reportNotifications, setReportNotifications] = useState(() => {
-        const saved = localStorage.getItem("projectLoop_reportNotifications");
-        return saved !== null ? JSON.parse(saved) : false;
-    });
+    const [loading, setLoading] = useState(true);
+    const [savingField, setSavingField] = useState(null);
+    const [error, setError] = useState("");
 
-    const [theme, setTheme] = useState(() => {
-        return localStorage.getItem("projectLoop_theme") || "system";
-    });
-
-    const [compactMode, setCompactMode] = useState(() => {
-        const saved = localStorage.getItem("projectLoop_compactMode");
-        return saved !== null ? JSON.parse(saved) : false;
-    });
+    /* =========================
+       LOAD SETTINGS
+    ========================= */
 
     useEffect(() => {
-        localStorage.setItem(
-            "projectLoop_emailNotifications",
-            JSON.stringify(emailNotifications)
-        );
-    }, [emailNotifications]);
+        let mounted = true;
 
-    useEffect(() => {
-        localStorage.setItem(
-            "projectLoop_feedbackAlerts",
-            JSON.stringify(feedbackAlerts)
-        );
-    }, [feedbackAlerts]);
+        const loadSettings = async () => {
+            try {
+                setLoading(true);
+                setError("");
 
-    useEffect(() => {
-        localStorage.setItem(
-            "projectLoop_reportNotifications",
-            JSON.stringify(reportNotifications)
-        );
-    }, [reportNotifications]);
+                const data = await apiRequest(
+                    "/settings"
+                );
 
-    useEffect(() => {
-        localStorage.setItem("projectLoop_theme", theme);
+                if (!mounted) {
+                    return;
+                }
 
-        const root = document.documentElement;
+                setSettings({
+                    ...DEFAULT_SETTINGS,
+                    ...(data.settings || {}),
+                });
+            } catch (error) {
+                if (!mounted) {
+                    return;
+                }
 
-        if (theme === "dark") {
-            root.setAttribute("data-theme", "dark");
-        } else if (theme === "light") {
-            root.setAttribute("data-theme", "light");
-        } else {
-            const prefersDark = window.matchMedia(
-                "(prefers-color-scheme: dark)"
-            ).matches;
+                console.error(
+                    "Failed to load settings:",
+                    error
+                );
 
-            root.setAttribute(
-                "data-theme",
-                prefersDark ? "dark" : "light"
-            );
-        }
-    }, [theme]);
-    useEffect(() => {
-        if (theme !== "system") return;
-
-        const mediaQuery = window.matchMedia(
-            "(prefers-color-scheme: dark)"
-        );
-
-        const handleThemeChange = (event) => {
-            document.documentElement.setAttribute(
-                "data-theme",
-                event.matches ? "dark" : "light"
-            );
+                setError(
+                    error.message ||
+                    "Unable to load settings."
+                );
+            } finally {
+                if (mounted) {
+                    setLoading(false);
+                }
+            }
         };
 
-        mediaQuery.addEventListener("change", handleThemeChange);
+        loadSettings();
 
         return () => {
-            mediaQuery.removeEventListener("change", handleThemeChange);
+            mounted = false;
         };
-    }, [theme]);
+    }, []);
+
+    /* =========================
+       APPLY THEME
+    ========================= */
 
     useEffect(() => {
-        localStorage.setItem(
-            "projectLoop_compactMode",
-            JSON.stringify(compactMode)
+        const root =
+            document.documentElement;
+
+        if (settings.theme === "dark") {
+            root.setAttribute(
+                "data-theme",
+                "dark"
+            );
+
+            return;
+        }
+
+        if (settings.theme === "light") {
+            root.setAttribute(
+                "data-theme",
+                "light"
+            );
+
+            return;
+        }
+
+        const mediaQuery =
+            window.matchMedia(
+                "(prefers-color-scheme: dark)"
+            );
+
+        const applySystemTheme = () => {
+            root.setAttribute(
+                "data-theme",
+                mediaQuery.matches
+                    ? "dark"
+                    : "light"
+            );
+        };
+
+        applySystemTheme();
+
+        mediaQuery.addEventListener(
+            "change",
+            applySystemTheme
         );
-    }, [compactMode]);
+
+        return () => {
+            mediaQuery.removeEventListener(
+                "change",
+                applySystemTheme
+            );
+        };
+    }, [settings.theme]);
+
+    /* =========================
+       UPDATE SINGLE SETTING
+    ========================= */
+
+    const updateSetting = async (
+        field,
+        value
+    ) => {
+        const previousValue =
+            settings[field];
+
+        setError("");
+
+        setSettings((prev) => ({
+            ...prev,
+            [field]: value,
+        }));
+
+        setSavingField(field);
+
+        try {
+            const data = await apiRequest(
+                "/settings",
+                {
+                    method: "PATCH",
+                    body: JSON.stringify({
+                        [field]: value,
+                    }),
+                }
+            );
+
+            setSettings((prev) => ({
+                ...prev,
+                ...(data.settings || {}),
+            }));
+        } catch (error) {
+            console.error(
+                `Failed to update ${field}:`,
+                error
+            );
+
+            setSettings((prev) => ({
+                ...prev,
+                [field]: previousValue,
+            }));
+
+            setError(
+                error.message ||
+                "Unable to save setting."
+            );
+        } finally {
+            setSavingField(null);
+        }
+    };
 
     return (
         <div className="settings-page">
@@ -104,11 +194,21 @@ function Settings() {
             <div className="settings-header">
                 <div>
                     <h1>Settings</h1>
+
                     <p>
-                        Manage your account, notifications and product preferences.
+                        Manage your account,
+                        notifications and product
+                        preferences.
                     </p>
                 </div>
             </div>
+
+            {/* Error */}
+            {error && (
+                <div className="settings-error">
+                    {error}
+                </div>
+            )}
 
             {/* Account */}
             <section className="settings-card">
@@ -116,8 +216,11 @@ function Settings() {
                 <div className="settings-section-header">
                     <div>
                         <h2>Account</h2>
+
                         <p>
-                            Manage your account information and profile settings.
+                            Manage your account
+                            information and profile
+                            settings.
                         </p>
                     </div>
                 </div>
@@ -125,15 +228,20 @@ function Settings() {
                 <div className="settings-row">
                     <div>
                         <strong>Profile</strong>
+
                         <p>
-                            Update your name, role, contact information and location.
+                            Update your name, role,
+                            contact information and
+                            location.
                         </p>
                     </div>
 
                     <button
                         type="button"
                         className="settings-action-btn"
-                        onClick={() => navigate("/profile")}
+                        onClick={() =>
+                            navigate("/profile")
+                        }
                     >
                         Manage →
                     </button>
@@ -141,14 +249,19 @@ function Settings() {
 
                 <div className="settings-row">
                     <div>
-                        <strong>Email Address</strong>
+                        <strong>
+                            Email Address
+                        </strong>
+
                         <p>
-                            Manage the email address associated with your account.
+                            Manage the email address
+                            associated with your
+                            account.
                         </p>
                     </div>
 
                     <span className="settings-value">
-                        vishal@example.com
+                        {user?.email || "—"}
                     </span>
                 </div>
 
@@ -160,8 +273,11 @@ function Settings() {
                 <div className="settings-section-header">
                     <div>
                         <h2>Notifications</h2>
+
                         <p>
-                            Choose which notifications you want to receive.
+                            Choose which
+                            notifications you want
+                            to receive.
                         </p>
                     </div>
                 </div>
@@ -170,20 +286,37 @@ function Settings() {
                 <div className="settings-row">
 
                     <div>
-                        <strong>Email notifications</strong>
+                        <strong>
+                            Email notifications
+                        </strong>
+
                         <p>
-                            Receive important product updates and account emails.
+                            Receive important
+                            product updates and
+                            account emails.
                         </p>
                     </div>
 
                     <button
                         type="button"
-                        className={`settings-toggle ${emailNotifications ? "active" : ""
+                        className={`settings-toggle ${settings.emailNotifications
+                                ? "active"
+                                : ""
                             }`}
                         onClick={() =>
-                            setEmailNotifications(!emailNotifications)
+                            updateSetting(
+                                "emailNotifications",
+                                !settings.emailNotifications
+                            )
                         }
-                        aria-pressed={emailNotifications}
+                        aria-pressed={
+                            settings.emailNotifications
+                        }
+                        disabled={
+                            loading ||
+                            savingField ===
+                            "emailNotifications"
+                        }
                     >
                         <span></span>
                     </button>
@@ -194,20 +327,37 @@ function Settings() {
                 <div className="settings-row">
 
                     <div>
-                        <strong>Feedback alerts</strong>
+                        <strong>
+                            Feedback alerts
+                        </strong>
+
                         <p>
-                            Get notified when new customer feedback requires attention.
+                            Get notified when new
+                            customer feedback
+                            requires attention.
                         </p>
                     </div>
 
                     <button
                         type="button"
-                        className={`settings-toggle ${feedbackAlerts ? "active" : ""
+                        className={`settings-toggle ${settings.feedbackAlerts
+                                ? "active"
+                                : ""
                             }`}
                         onClick={() =>
-                            setFeedbackAlerts(!feedbackAlerts)
+                            updateSetting(
+                                "feedbackAlerts",
+                                !settings.feedbackAlerts
+                            )
                         }
-                        aria-pressed={feedbackAlerts}
+                        aria-pressed={
+                            settings.feedbackAlerts
+                        }
+                        disabled={
+                            loading ||
+                            savingField ===
+                            "feedbackAlerts"
+                        }
                     >
                         <span></span>
                     </button>
@@ -218,70 +368,144 @@ function Settings() {
                 <div className="settings-row">
 
                     <div>
-                        <strong>Report notifications</strong>
+                        <strong>
+                            Report notifications
+                        </strong>
+
                         <p>
-                            Receive notifications when reports are generated.
+                            Receive notifications
+                            when reports are
+                            generated.
                         </p>
                     </div>
 
                     <button
                         type="button"
-                        className={`settings-toggle ${reportNotifications ? "active" : ""
+                        className={`settings-toggle ${settings.reportNotifications
+                                ? "active"
+                                : ""
                             }`}
                         onClick={() =>
-                            setReportNotifications(!reportNotifications)
+                            updateSetting(
+                                "reportNotifications",
+                                !settings.reportNotifications
+                            )
                         }
-                        aria-pressed={reportNotifications}
+                        aria-pressed={
+                            settings.reportNotifications
+                        }
+                        disabled={
+                            loading ||
+                            savingField ===
+                            "reportNotifications"
+                        }
                     >
                         <span></span>
                     </button>
+
                 </div>
 
                 {/* Appearance */}
                 <div className="settings-section">
+
                     <div className="settings-section-header">
                         <h2>Appearance</h2>
-                       <p>Customize how AI Feedback looks on your device.</p>
+
+                        <p>
+                            Customize how AI
+                            Feedback looks on
+                            your device.
+                        </p>
                     </div>
 
+                    {/* Theme */}
                     <div className="settings-row">
+
                         <div>
-                            <strong>Theme</strong>
-                            <p>Choose your preferred interface theme.</p>
+                            <strong>
+                                Theme
+                            </strong>
+
+                            <p>
+                                Choose your preferred
+                                interface theme.
+                            </p>
                         </div>
 
                         <select
+                            id="theme"
+                            name="theme"
                             className="settings-select"
-                            value={theme}
-                            onChange={(e) => setTheme(e.target.value)}
+                            value={settings.theme}
+                            onChange={(e) =>
+                                updateSetting(
+                                    "theme",
+                                    e.target.value
+                                )
+                            }
+                            disabled={
+                                loading ||
+                                savingField ===
+                                "theme"
+                            }
                         >
-                            <option value="light">Light</option>
-                            <option value="dark">Dark</option>
-                            <option value="system">System</option>
+                            <option value="light">
+                                Light
+                            </option>
+
+                            <option value="dark">
+                                Dark
+                            </option>
+
+                            <option value="system">
+                                System
+                            </option>
                         </select>
+
                     </div>
 
+                    {/* Compact Mode */}
                     <div className="settings-row">
+
                         <div>
-                            <strong>Compact mode</strong>
-                            <p>Reduce spacing to show more content on screen.</p>
+                            <strong>
+                                Compact mode
+                            </strong>
+
+                            <p>
+                                Reduce spacing to
+                                show more content
+                                on screen.
+                            </p>
                         </div>
 
                         <button
                             type="button"
-                            className={`settings-toggle ${compactMode ? "active" : ""
+                            className={`settings-toggle ${settings.compactMode
+                                    ? "active"
+                                    : ""
                                 }`}
-                            onClick={() => setCompactMode(!compactMode)}
-                            aria-pressed={compactMode}
+                            onClick={() =>
+                                updateSetting(
+                                    "compactMode",
+                                    !settings.compactMode
+                                )
+                            }
+                            aria-pressed={
+                                settings.compactMode
+                            }
+                            disabled={
+                                loading ||
+                                savingField ===
+                                "compactMode"
+                            }
                         >
                             <span></span>
                         </button>
+
                     </div>
+
                 </div>
-
-
-
-
 
             </section>
 

@@ -1,455 +1,878 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import "./Feedback.css";
-import { feedbackData } from "../../data/feedbackData";
+import useFeedback from "../../hooks/useFeedback";
+import Modal from "../../components/ui/Modal";
+
+const STATUS_OPTIONS = [
+    { value: "All", label: "All Status" },
+    { value: "NEW", label: "New" },
+    { value: "REVIEWED", label: "Reviewed" },
+    { value: "ACTIONED", label: "Actioned" },
+];
+
+const SENTIMENT_OPTIONS = [
+    { value: "All", label: "All Sentiment" },
+    { value: "POS", label: "Positive" },
+    { value: "NEU", label: "Neutral" },
+    { value: "NEG", label: "Negative" },
+];
+
+const CHANNEL_OPTIONS = [
+    "Website",
+    "Email",
+    "Support",
+    "App Store",
+    "Social",
+    "Survey",
+    "Other",
+];
+
+const formatSentiment = (value) => {
+    const map = {
+        POS: "Positive",
+        NEU: "Neutral",
+        NEG: "Negative",
+    };
+
+    return map[value] || "Not analyzed";
+};
+
+const formatStatus = (value) => {
+    const map = {
+        NEW: "New",
+        REVIEWED: "Reviewed",
+        ACTIONED: "Actioned",
+    };
+
+    return map[value] || value;
+};
+
+const formatPriority = (value) => {
+    const map = {
+        LOW: "Low",
+        MEDIUM: "Medium",
+        HIGH: "High",
+    };
+
+    return map[value] || "Not analyzed";
+};
+
+const getInitial = (feedback) => {
+    return (
+        feedback.customerLabel?.charAt(0)?.toUpperCase() ||
+        "C"
+    );
+};
 
 function Feedback() {
     const [search, setSearch] = useState("");
     const [statusFilter, setStatusFilter] = useState("All");
     const [sentimentFilter, setSentimentFilter] = useState("All");
-    const [priorityFilter, setPriorityFilter] = useState("All");
+
     const [selectedFeedback, setSelectedFeedback] = useState(null);
+    const [showCreateModal, setShowCreateModal] = useState(false);
 
-    // =========================
-    // NORMALIZE AI CONFIDENCE
-    // =========================
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [deleteFeedbackId, setDeleteFeedbackId] = useState(null);
 
-    const getConfidence = (feedback) => {
-        return Number(feedback.confidence ?? feedback.score ?? 0);
+    const [form, setForm] = useState({
+        content: "",
+        channel: "Website",
+        customerLabel: "",
+        sourceRef: "",
+    });
+
+    const {
+        feedbacks,
+        loading,
+        submitting,
+        analyzingId,
+        error,
+        refresh,
+        createFeedback,
+        analyzeFeedback,
+        deleteFeedback,
+    } = useFeedback({
+        search,
+        status: statusFilter,
+        sentiment: sentimentFilter,
+    });
+
+
+    // =====================================================
+    // CREATE FEEDBACK
+    // =====================================================
+
+    const handleCreateFeedback = async (e) => {
+        e.preventDefault();
+
+        if (!form.content.trim()) {
+            return;
+        }
+
+        try {
+            const feedback = await createFeedback({
+                content: form.content.trim(),
+                channel: form.channel,
+                customerLabel: form.customerLabel.trim(),
+                sourceRef: form.sourceRef.trim(),
+            });
+
+            if (feedback) {
+                setForm({
+                    content: "",
+                    channel: "Website",
+                    customerLabel: "",
+                    sourceRef: "",
+                });
+
+                setShowCreateModal(false);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    // =====================================================
+    // AI ANALYSIS
+    // =====================================================
+
+    const handleAnalyze = async (feedbackId) => {
+        try {
+            const response = await analyzeFeedback(feedbackId);
+
+            if (response?.feedback) {
+                setSelectedFeedback(response.feedback);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    // =====================================================
+    // DELETE
+    // =====================================================
+
+    const handleDelete = (feedbackId) => {
+        setDeleteFeedbackId(feedbackId);
+        setShowDeleteModal(true);
     };
 
 
-    // =========================
-    // SUMMARY METRICS
-    // =========================
+    const handleConfirmDelete = async () => {
+        if (!deleteFeedbackId) return;
 
-    const totalFeedback = feedbackData.length;
+        try {
+            await deleteFeedback(deleteFeedbackId);
 
-    const pendingFeedback = feedbackData.filter(
-        (feedback) => feedback.status === "Pending"
-    ).length;
+            if (selectedFeedback?._id === deleteFeedbackId) {
+                setSelectedFeedback(null);
+            }
 
-    const highPriorityFeedback = feedbackData.filter(
-        (feedback) => feedback.priority === "High"
-    ).length;
+            setShowDeleteModal(false);
+            setDeleteFeedbackId(null);
+        } catch (err) {
+            console.error(err);
+        }
+    };
 
-    const averageConfidence =
-        totalFeedback > 0
-            ? Math.round(
-                feedbackData.reduce(
-                    (total, feedback) =>
-                        total + getConfidence(feedback),
-                    0
-                ) / totalFeedback
-            )
-            : 0;
+    // =====================================================
+    // LOCAL METRICS
+    // =====================================================
 
+    const metrics = useMemo(() => {
+        const total = feedbacks.length;
 
-    // =========================
-    // FILTER FEEDBACK
-    // =========================
+        const analyzed = feedbacks.filter(
+            (item) =>
+                item.sentiment &&
+                item.aiConfidence > 0
+        );
 
-    const filteredFeedback = useMemo(() => {
-        const query = search.trim().toLowerCase();
+        const pending = feedbacks.filter(
+            (item) => item.status === "NEW"
+        ).length;
 
-        return feedbackData.filter((feedback) => {
+        const highPriority = feedbacks.filter(
+            (item) =>
+                item.aiPriority === "HIGH"
+        ).length;
 
-            const matchesSearch =
-                !query ||
-                feedback.name?.toLowerCase().includes(query) ||
-                feedback.message?.toLowerCase().includes(query) ||
-                feedback.category?.toLowerCase().includes(query);
+        const averageConfidence =
+            analyzed.length > 0
+                ? Math.round(
+                    analyzed.reduce(
+                        (sum, item) =>
+                            sum +
+                            Number(
+                                item.aiConfidence || 0
+                            ),
+                        0
+                    ) / analyzed.length
+                )
+                : 0;
 
-            const matchesStatus =
-                statusFilter === "All" ||
-                feedback.status === statusFilter;
+        return {
+            total,
+            pending,
+            analyzed: analyzed.length,
+            highPriority,
+            averageConfidence,
+        };
+    }, [feedbacks]);
 
-            const matchesSentiment =
-                sentimentFilter === "All" ||
-                feedback.sentiment === sentimentFilter;
-
-            const matchesPriority =
-                priorityFilter === "All" ||
-                feedback.priority === priorityFilter;
-
-            return (
-                matchesSearch &&
-                matchesStatus &&
-                matchesSentiment &&
-                matchesPriority
-            );
-        });
-    }, [
-        search,
-        statusFilter,
-        sentimentFilter,
-        priorityFilter,
-    ]);
-
-
-    // =========================
+    // =====================================================
     // CLEAR FILTERS
-    // =========================
+    // =====================================================
 
     const clearFilters = () => {
         setSearch("");
         setStatusFilter("All");
         setSentimentFilter("All");
-        setPriorityFilter("All");
     };
-
-
-    // =========================
-    // RENDER
-    // =========================
 
     return (
         <div className="feedback-page">
 
-            {/* =========================
-                HEADER
-            ========================= */}
+            {/* HEADER */}
 
             <div className="feedback-header">
-
                 <div>
                     <h1>Feedback Intelligence</h1>
 
                     <p>
-                        Review customer feedback and discover AI-powered insights.
+                        Turn customer feedback into
+                        actionable AI-powered insights.
                     </p>
                 </div>
 
-                <div className="feedback-header-badge">
-                    <span>✦</span>
-                    AI Analysis Active
-                </div>
+                <div
+                    style={{
+                        display: "flex",
+                        gap: "12px",
+                        alignItems: "center",
+                    }}
+                >
+                    <div className="feedback-header-badge">
+                        <span>✦</span>
+                        AI Analysis Active
+                    </div>
 
+                    <button
+                        type="button"
+                        className="view-analysis-button"
+                        onClick={() =>
+                            setShowCreateModal(true)
+                        }
+                    >
+                        + Add Feedback
+                    </button>
+                </div>
             </div>
 
+            {/* ERROR */}
 
-            {/* =========================
-                SUMMARY CARDS
-            ========================= */}
+            {error && (
+                <div
+                    style={{
+                        marginBottom: "20px",
+                        padding: "14px 16px",
+                        borderRadius: "10px",
+                        background: "#fff1f2",
+                        border: "1px solid #fecdd3",
+                        color: "#be123c",
+                    }}
+                >
+                    {error}
+                </div>
+            )}
+
+            {/* METRICS */}
 
             <div className="feedback-summary">
 
                 <div className="feedback-summary-card">
-                    <span className="summary-icon">💬</span>
+                    <span className="summary-icon">
+                        💬
+                    </span>
 
                     <div>
                         <p>Total Feedback</p>
-                        <h2>{totalFeedback}</h2>
+                        <h2>{metrics.total}</h2>
                     </div>
                 </div>
 
-
                 <div className="feedback-summary-card">
-                    <span className="summary-icon">⏳</span>
+                    <span className="summary-icon">
+                        ⏳
+                    </span>
 
                     <div>
                         <p>Pending Review</p>
-                        <h2>{pendingFeedback}</h2>
+                        <h2>{metrics.pending}</h2>
                     </div>
                 </div>
 
-
                 <div className="feedback-summary-card">
-                    <span className="summary-icon">🤖</span>
+                    <span className="summary-icon">
+                        🤖
+                    </span>
 
                     <div>
                         <p>AI Analyzed</p>
-                        <h2>{averageConfidence}%</h2>
+                        <h2>{metrics.analyzed}</h2>
                     </div>
                 </div>
 
-
                 <div className="feedback-summary-card">
-                    <span className="summary-icon">⚡</span>
+                    <span className="summary-icon">
+                        ⚡
+                    </span>
 
                     <div>
                         <p>High Priority</p>
-                        <h2>{highPriorityFeedback}</h2>
+                        <h2>{metrics.highPriority}</h2>
                     </div>
                 </div>
 
             </div>
 
-
-            {/* =========================
-                FILTER TOOLBAR
-            ========================= */}
+            {/* TOOLBAR */}
 
             <div className="feedback-toolbar">
 
                 <div className="feedback-search">
-
                     <span>⌕</span>
 
                     <input
                         type="text"
-                        placeholder="Search feedback, name or category..."
+                        placeholder="Search customer feedback..."
                         value={search}
-                        onChange={(e) => setSearch(e.target.value)}
+                        onChange={(e) =>
+                            setSearch(e.target.value)
+                        }
                     />
-
                 </div>
-
 
                 <select
                     value={statusFilter}
                     onChange={(e) =>
                         setStatusFilter(e.target.value)
                     }
-                    aria-label="Filter feedback by status"
                 >
-                    <option value="All">All Status</option>
-                    <option value="Pending">Pending</option>
-                    <option value="Reviewed">Reviewed</option>
-                    <option value="Approved">Approved</option>
+                    {STATUS_OPTIONS.map((option) => (
+                        <option
+                            key={option.value}
+                            value={option.value}
+                        >
+                            {option.label}
+                        </option>
+                    ))}
                 </select>
-
 
                 <select
                     value={sentimentFilter}
                     onChange={(e) =>
-                        setSentimentFilter(e.target.value)
+                        setSentimentFilter(
+                            e.target.value
+                        )
                     }
-                    aria-label="Filter feedback by sentiment"
                 >
-                    <option value="All">All Sentiment</option>
-                    <option value="Positive">Positive</option>
-                    <option value="Negative">Negative</option>
-                    <option value="Neutral">Neutral</option>
+                    {SENTIMENT_OPTIONS.map((option) => (
+                        <option
+                            key={option.value}
+                            value={option.value}
+                        >
+                            {option.label}
+                        </option>
+                    ))}
                 </select>
-
-
-                <select
-                    value={priorityFilter}
-                    onChange={(e) =>
-                        setPriorityFilter(e.target.value)
-                    }
-                    aria-label="Filter feedback by priority"
-                >
-                    <option value="All">All Priority</option>
-                    <option value="High">High Priority</option>
-                    <option value="Medium">Medium Priority</option>
-                    <option value="Low">Low Priority</option>
-                </select>
-
 
                 {(search ||
                     statusFilter !== "All" ||
-                    sentimentFilter !== "All" ||
-                    priorityFilter !== "All") && (
-
-                    <button
-                        type="button"
-                        className="sort-button"
-                        onClick={clearFilters}
-                    >
-                        Clear Filters
-                    </button>
-                )}
+                    sentimentFilter !== "All") && (
+                        <button
+                            type="button"
+                            className="sort-button"
+                            onClick={clearFilters}
+                        >
+                            Clear
+                        </button>
+                    )}
 
             </div>
 
-
-            {/* =========================
-                RESULTS HEADER
-            ========================= */}
+            {/* RESULT HEADER */}
 
             <div className="feedback-results-header">
-
                 <div>
-
                     <h2>Customer Feedback</h2>
 
                     <p>
-                        {filteredFeedback.length} feedback items found
+                        {loading
+                            ? "Loading..."
+                            : `${feedbacks.length} feedback items`}
                     </p>
-
                 </div>
-
             </div>
 
+            {/* LOADING */}
 
-            {/* =========================
-                FEEDBACK LIST
-            ========================= */}
-
-            <div className="feedback-list">
-
-                {filteredFeedback.map((feedback) => {
-
-                    const confidence = getConfidence(feedback);
-
-                    return (
-                        <div
-                            className="feedback-card"
-                            key={feedback.id}
-                        >
-
-                            {/* CARD HEADER */}
-
-                            <div className="feedback-card-top">
-
-                                <div className="feedback-user">
-
-                                    <div className="feedback-avatar">
-                                        {feedback.initial}
-                                    </div>
-
-                                    <div>
-                                        <h3>{feedback.name}</h3>
-                                        <span>Customer feedback</span>
-                                    </div>
-
-                                </div>
-
-
-                                <span
-                                    className={`priority-badge priority-${feedback.priority.toLowerCase()}`}
-                                >
-                                    {feedback.priority} Priority
-                                </span>
-
-                            </div>
-
-
-                            {/* MESSAGE */}
-
-                            <p className="feedback-message">
-                                "{feedback.message}"
-                            </p>
-
-
-                            {/* AI ANALYSIS */}
-
-                            <div className="feedback-analysis">
-
-                                <div className="analysis-item">
-
-                                    <span>Sentiment</span>
-
-                                    <strong
-                                        className={`sentiment-${feedback.sentiment.toLowerCase()}`}
-                                    >
-                                        {feedback.sentiment}
-                                    </strong>
-
-                                </div>
-
-
-                                <div className="analysis-item">
-
-                                    <span>Category</span>
-
-                                    <strong>
-                                        {feedback.category}
-                                    </strong>
-
-                                </div>
-
-
-                                <div className="analysis-item">
-
-                                    <span>AI Confidence</span>
-
-                                    <strong>
-                                        {confidence}%
-                                    </strong>
-
-                                </div>
-
-
-                                <div className="analysis-item">
-
-                                    <span>Status</span>
-
-                                    <strong>
-                                        {feedback.status}
-                                    </strong>
-
-                                </div>
-
-                            </div>
-
-
-                            {/* AI RECOMMENDATION */}
-
-                            <div className="feedback-card-footer">
-
-                                <div className="ai-recommendation">
-
-                                    <span>✦</span>
-
-                                    <div>
-                                        <small>
-                                            AI Recommendation
-                                        </small>
-
-                                        <p>
-                                            {feedback.recommendation}
-                                        </p>
-                                    </div>
-
-                                </div>
-
-
-                                <button
-                                    type="button"
-                                    className="view-analysis-button"
-                                    onClick={() =>
-                                        setSelectedFeedback(feedback)
-                                    }
-                                >
-                                    View Analysis →
-                                </button>
-
-                            </div>
-
-                        </div>
-                    );
-                })}
-
-            </div>
-
-
-            {/* =========================
-                EMPTY STATE
-            ========================= */}
-
-            {filteredFeedback.length === 0 && (
-
+            {loading && (
                 <div className="feedback-empty">
+                    <div>⏳</div>
 
-                    <div>🔎</div>
-
-                    <h3>No feedback found</h3>
+                    <h3>
+                        Loading feedback...
+                    </h3>
 
                     <p>
-                        Try changing your search or filters.
+                        Fetching your workspace data.
                     </p>
-
-                    <button
-                        type="button"
-                        className="sort-button"
-                        onClick={clearFilters}
-                    >
-                        Reset Filters
-                    </button>
-
                 </div>
-
             )}
 
+            {/* EMPTY */}
 
-            {/* =========================
-                ANALYSIS MODAL
-            ========================= */}
+            {!loading &&
+                feedbacks.length === 0 && (
+                    <div className="feedback-empty">
+
+                        <div>💬</div>
+
+                        <h3>
+                            No feedback yet
+                        </h3>
+
+                        <p>
+                            Add your first customer
+                            feedback to start using
+                            AI intelligence.
+                        </p>
+
+                        <button
+                            type="button"
+                            className="view-analysis-button"
+                            onClick={() =>
+                                setShowCreateModal(true)
+                            }
+                            style={{
+                                marginTop: "16px",
+                            }}
+                        >
+                            + Add First Feedback
+                        </button>
+
+                    </div>
+                )}
+
+            {/* FEEDBACK LIST */}
+
+            {!loading &&
+                feedbacks.length > 0 && (
+
+                    <div className="feedback-list">
+
+                        {feedbacks.map((feedback) => {
+
+                            const sentiment =
+                                formatSentiment(
+                                    feedback.sentiment
+                                );
+
+                            const priority =
+                                formatPriority(
+                                    feedback.aiPriority
+                                );
+
+                            const analyzed =
+                                Boolean(
+                                    feedback.sentiment &&
+                                    feedback.aiConfidence > 0
+                                );
+
+                            return (
+                                <div
+                                    className="feedback-card"
+                                    key={feedback._id}
+                                >
+
+                                    <div className="feedback-card-top">
+
+                                        <div className="feedback-user">
+
+                                            <div className="feedback-avatar">
+                                                {getInitial(
+                                                    feedback
+                                                )}
+                                            </div>
+
+                                            <div>
+                                                <h3>
+                                                    {feedback.customerLabel ||
+                                                        "Anonymous Customer"}
+                                                </h3>
+
+                                                <span>
+                                                    {feedback.channel}
+                                                    {" · "}
+                                                    {new Date(
+                                                        feedback.createdAt
+                                                    ).toLocaleDateString()}
+                                                </span>
+                                            </div>
+
+                                        </div>
+
+                                        <span
+                                            className={`priority-badge priority-${priority.toLowerCase()}`}
+                                        >
+                                            {priority}
+                                        </span>
+
+                                    </div>
+
+                                    <p className="feedback-message">
+                                        "{feedback.content}"
+                                    </p>
+
+                                    <div className="feedback-analysis">
+
+                                        <div className="analysis-item">
+                                            <span>
+                                                Sentiment
+                                            </span>
+
+                                            <strong
+                                                className={
+                                                    feedback.sentiment ===
+                                                        "POS"
+                                                        ? "sentiment-positive"
+                                                        : feedback.sentiment ===
+                                                            "NEG"
+                                                            ? "sentiment-negative"
+                                                            : ""
+                                                }
+                                            >
+                                                {sentiment}
+                                            </strong>
+                                        </div>
+
+                                        <div className="analysis-item">
+                                            <span>
+                                                AI Theme
+                                            </span>
+
+                                            <strong>
+                                                {feedback.aiTheme ||
+                                                    "Not analyzed"}
+                                            </strong>
+                                        </div>
+
+                                        <div className="analysis-item">
+                                            <span>
+                                                AI Confidence
+                                            </span>
+
+                                            <strong>
+                                                {analyzed
+                                                    ? `${feedback.aiConfidence}%`
+                                                    : "—"}
+                                            </strong>
+                                        </div>
+
+                                        <div className="analysis-item">
+                                            <span>
+                                                Status
+                                            </span>
+
+                                            <strong>
+                                                {formatStatus(
+                                                    feedback.status
+                                                )}
+                                            </strong>
+                                        </div>
+
+                                    </div>
+
+                                    {feedback.aiRecommendation && (
+                                        <div className="feedback-card-footer">
+
+                                            <div className="ai-recommendation">
+
+                                                <span>
+                                                    ✦
+                                                </span>
+
+                                                <div>
+                                                    <small>
+                                                        AI Recommendation
+                                                    </small>
+
+                                                    <p>
+                                                        {
+                                                            feedback.aiRecommendation
+                                                        }
+                                                    </p>
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+                                    )}
+
+                                    <div
+                                        style={{
+                                            display: "flex",
+                                            gap: "10px",
+                                            marginTop: "16px",
+                                            justifyContent:
+                                                "flex-end",
+                                        }}
+                                    >
+
+                                        <button
+                                            type="button"
+                                            className="sort-button"
+                                            onClick={() =>
+                                                handleDelete(
+                                                    feedback._id
+                                                )
+                                            }
+                                        >
+                                            Delete
+                                        </button>
+
+                                        {analyzed && (
+                                            <button
+                                                type="button"
+                                                className="view-analysis-button"
+                                                onClick={() =>
+                                                    setSelectedFeedback(
+                                                        feedback
+                                                    )
+                                                }
+                                            >
+                                                View Analysis →
+                                            </button>
+                                        )}
+
+                                        {!analyzed && (
+                                            <button
+                                                type="button"
+                                                className="view-analysis-button"
+                                                disabled={
+                                                    analyzingId ===
+                                                    feedback._id
+                                                }
+                                                onClick={() =>
+                                                    handleAnalyze(
+                                                        feedback._id
+                                                    )
+                                                }
+                                            >
+                                                {analyzingId ===
+                                                    feedback._id
+                                                    ? "Analyzing..."
+                                                    : "✦ Analyze with AI"}
+                                            </button>
+                                        )}
+
+                                    </div>
+
+                                </div>
+                            );
+                        })}
+
+                    </div>
+                )}
+
+            {/* CREATE MODAL */}
+
+            {showCreateModal && (
+                <div
+                    className="analysis-overlay"
+                    onClick={() =>
+                        !submitting &&
+                        setShowCreateModal(false)
+                    }
+                >
+
+                    <div
+                        className="analysis-modal"
+                        onClick={(e) =>
+                            e.stopPropagation()
+                        }
+                    >
+
+                        <div className="modal-header">
+
+                            <div>
+                                <span className="modal-label">
+                                    FEEDBACK INTAKE
+                                </span>
+
+                                <h2>
+                                    Add Customer Feedback
+                                </h2>
+                            </div>
+
+                            <button
+                                type="button"
+                                className="modal-close"
+                                onClick={() =>
+                                    setShowCreateModal(false)
+                                }
+                                disabled={submitting}
+                            >
+                                ×
+                            </button>
+
+                        </div>
+
+                        <form
+                            onSubmit={
+                                handleCreateFeedback
+                            }
+                            style={{
+                                marginTop: "24px",
+                            }}
+                        >
+
+                            <div
+                                style={{
+                                    display: "grid",
+                                    gap: "16px",
+                                }}
+                            >
+
+                                <div>
+                                    <label>
+                                        Customer
+                                    </label>
+
+                                    <input
+                                        className="feedback-form-input"
+                                        value={
+                                            form.customerLabel
+                                        }
+                                        onChange={(e) =>
+                                            setForm({
+                                                ...form,
+                                                customerLabel:
+                                                    e.target
+                                                        .value,
+                                            })
+                                        }
+                                        placeholder="e.g. Acme Corp"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label>
+                                        Channel
+                                    </label>
+
+                                    <select
+                                        className="feedback-form-input"
+                                        value={form.channel}
+                                        onChange={(e) =>
+                                            setForm({
+                                                ...form,
+                                                channel:
+                                                    e.target
+                                                        .value,
+                                            })
+                                        }
+                                    >
+                                        {CHANNEL_OPTIONS.map(
+                                            (channel) => (
+                                                <option
+                                                    key={
+                                                        channel
+                                                    }
+                                                    value={
+                                                        channel
+                                                    }
+                                                >
+                                                    {channel}
+                                                </option>
+                                            )
+                                        )}
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label>
+                                        Feedback
+                                    </label>
+
+                                    <textarea
+                                        className="feedback-form-input"
+                                        rows="6"
+                                        value={
+                                            form.content
+                                        }
+                                        onChange={(e) =>
+                                            setForm({
+                                                ...form,
+                                                content:
+                                                    e.target
+                                                        .value,
+                                            })
+                                        }
+                                        placeholder="Enter the customer's feedback..."
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label>
+                                        Source Reference
+                                    </label>
+
+                                    <input
+                                        className="feedback-form-input"
+                                        value={
+                                            form.sourceRef
+                                        }
+                                        onChange={(e) =>
+                                            setForm({
+                                                ...form,
+                                                sourceRef:
+                                                    e.target
+                                                        .value,
+                                            })
+                                        }
+                                        placeholder="Optional ticket/order/reference ID"
+                                    />
+                                </div>
+
+                            </div>
+
+                            <button
+                                type="submit"
+                                className="view-analysis-button"
+                                disabled={submitting}
+                                style={{
+                                    width: "100%",
+                                    marginTop: "20px",
+                                }}
+                            >
+                                {submitting
+                                    ? "Creating..."
+                                    : "Create Feedback"}
+                            </button>
+
+                        </form>
+
+                    </div>
+                </div>
+            )}
+
+            {/* ANALYSIS MODAL */}
 
             {selectedFeedback && (
-
                 <div
                     className="analysis-overlay"
                     onClick={() =>
@@ -464,22 +887,18 @@ function Feedback() {
                         }
                     >
 
-                        {/* MODAL HEADER */}
-
                         <div className="modal-header">
 
                             <div>
-
                                 <span className="modal-label">
                                     AI FEEDBACK ANALYSIS
                                 </span>
 
                                 <h2>
-                                    {selectedFeedback.name}'s Feedback
+                                    {selectedFeedback.customerLabel ||
+                                        "Customer Feedback"}
                                 </h2>
-
                             </div>
-
 
                             <button
                                 type="button"
@@ -487,89 +906,88 @@ function Feedback() {
                                 onClick={() =>
                                     setSelectedFeedback(null)
                                 }
-                                aria-label="Close analysis"
                             >
                                 ×
                             </button>
 
                         </div>
 
-
-                        {/* CONFIDENCE */}
-
                         <div className="modal-score">
 
                             <div>
-
                                 <span>
-                                    AI Confidence Score
+                                    AI Confidence
                                 </span>
 
                                 <strong>
-                                    {getConfidence(selectedFeedback)}%
+                                    {
+                                        selectedFeedback.aiConfidence
+                                    }
+                                    %
                                 </strong>
-
                             </div>
 
-
                             <div className="score-bar">
-
                                 <div
                                     style={{
-                                        width: `${getConfidence(
-                                            selectedFeedback
-                                        )}%`,
+                                        width: `${selectedFeedback.aiConfidence || 0}%`,
                                     }}
                                 />
-
                             </div>
 
                         </div>
-
-
-                        {/* DETAILS */}
 
                         <div className="modal-grid">
 
                             <div>
-                                <span>Sentiment</span>
+                                <span>
+                                    Sentiment
+                                </span>
 
                                 <strong>
-                                    {selectedFeedback.sentiment}
+                                    {formatSentiment(
+                                        selectedFeedback.sentiment
+                                    )}
                                 </strong>
                             </div>
 
-
                             <div>
-                                <span>Category</span>
+                                <span>
+                                    Theme
+                                </span>
 
                                 <strong>
-                                    {selectedFeedback.category}
+                                    {
+                                        selectedFeedback.aiTheme
+                                    }
                                 </strong>
                             </div>
 
-
                             <div>
-                                <span>Priority</span>
+                                <span>
+                                    Priority
+                                </span>
 
                                 <strong>
-                                    {selectedFeedback.priority}
+                                    {formatPriority(
+                                        selectedFeedback.aiPriority
+                                    )}
                                 </strong>
                             </div>
 
-
                             <div>
-                                <span>Status</span>
+                                <span>
+                                    Status
+                                </span>
 
                                 <strong>
-                                    {selectedFeedback.status}
+                                    {formatStatus(
+                                        selectedFeedback.status
+                                    )}
                                 </strong>
                             </div>
 
                         </div>
-
-
-                        {/* CUSTOMER FEEDBACK */}
 
                         <div className="modal-section">
 
@@ -578,13 +996,23 @@ function Feedback() {
                             </span>
 
                             <p>
-                                "{selectedFeedback.message}"
+                                "{selectedFeedback.content}"
                             </p>
 
                         </div>
 
+                        <div className="modal-section">
 
-                        {/* AI RECOMMENDATION */}
+                            <span>
+                                AI Summary
+                            </span>
+
+                            <p>
+                                {selectedFeedback.aiSummary ||
+                                    "No summary available."}
+                            </p>
+
+                        </div>
 
                         <div className="modal-recommendation">
 
@@ -593,16 +1021,32 @@ function Feedback() {
                             </span>
 
                             <p>
-                                {selectedFeedback.recommendation}
+                                {selectedFeedback.aiRecommendation ||
+                                    "No recommendation available."}
                             </p>
 
                         </div>
 
                     </div>
-
                 </div>
-
             )}
+
+            <Modal
+                isOpen={showDeleteModal}
+                title="Delete Feedback"
+                onClose={() => {
+                    setShowDeleteModal(false);
+                    setDeleteFeedbackId(null);
+                }}
+                onConfirm={handleConfirmDelete}
+                confirmText="Delete"
+                cancelText="Cancel"
+            >
+                <p>
+                    Are you sure you want to delete this feedback?
+                    This action cannot be undone.
+                </p>
+            </Modal>
 
         </div>
     );

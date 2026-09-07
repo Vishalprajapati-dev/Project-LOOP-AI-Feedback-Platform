@@ -1,38 +1,130 @@
-import { useEffect } from "react";
+import {
+    BrowserRouter,
+    Navigate,
+    Route,
+    Routes,
+} from "react-router-dom";
+
+import Team from "./pages/team/Team";
+import { AuthProvider } from "./context/AuthContext";
+import ProtectedRoute from "./routes/ProtectedRoute";
+
+import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
+
 import MainLayout from "./layouts/MainLayout";
-import AppRoutes from "./routes/AppRoutes";
+
+import Dashboard from "./pages/dashboard/Dashboard";
+import Feedback from "./pages/feedback/Feedback";
+import Analytics from "./pages/analytics/Analytics";
+import Reports from "./pages/reports/Reports";
+import Profile from "./pages/profile/Profile";
+import Settings from "./pages/settings/Settings";
+
 
 function App() {
-    useEffect(() => {
-        const savedTheme = localStorage.getItem("projectLoop_theme") || "system";
-
-        const applyTheme = (theme) => {
-            const root = document.documentElement;
-
-            if (theme === "dark") {
-                root.setAttribute("data-theme", "dark");
-            } else if (theme === "light") {
-                root.setAttribute("data-theme", "light");
-            } else {
-                const prefersDark = window.matchMedia(
-                    "(prefers-color-scheme: dark)"
-                ).matches;
-
-                root.setAttribute(
-                    "data-theme",
-                    prefersDark ? "dark" : "light"
-                );
-            }
-        };
-
-        applyTheme(savedTheme);
-    }, []);
-
     return (
-        <MainLayout>
-            <AppRoutes />
-        </MainLayout>
+        <AuthProvider>
+            <BrowserRouter>
+                <Routes>
+
+                    {/* =========================================
+                        PUBLIC ROUTES
+                    ========================================= */}
+
+                    <Route
+                        path="/login"
+                        element={<Login />}
+                    />
+
+                    <Route
+                        path="/register"
+                        element={<Register />}
+                    />
+
+
+                    {/* =========================================
+                        PROTECTED APPLICATION
+                    ========================================= */}
+
+                    <Route element={<ProtectedRoute />}>
+
+                        <Route element={<MainLayout />}>
+
+                            <Route
+                                path="/dashboard"
+                                element={<Dashboard />}
+                            />
+
+                            <Route
+                                path="/feedback"
+                                element={<Feedback />}
+                            />
+
+                            <Route
+                                path="/analytics"
+                                element={<Analytics />}
+                            />
+
+                            <Route
+                                path="/reports"
+                                element={<Reports />}
+                            />
+
+                            <Route
+                                path="/team"
+                                element={<Team />}
+                            />
+
+                            <Route
+                                path="/profile"
+                                element={<Profile />}
+                            />
+
+                            <Route
+                                path="/settings"
+                                element={<Settings />}
+                            />
+
+                        </Route>
+
+                    </Route>
+
+
+                    {/* =========================================
+                        DEFAULT ROUTE
+                    ========================================= */}
+
+                    <Route
+                        path="/"
+                        element={
+                            <Navigate
+                                to="/dashboard"
+                                replace
+                            />
+                        }
+                    />
+
+
+                    {/* =========================================
+                        404 / UNKNOWN ROUTE
+                    ========================================= */}
+
+                    <Route
+                        path="*"
+                        element={
+                            <Navigate
+                                to="/dashboard"
+                                replace
+                            />
+                        }
+                    />
+
+                </Routes>
+            </BrowserRouter>
+        </AuthProvider>
     );
 }
+
 
 export default App;

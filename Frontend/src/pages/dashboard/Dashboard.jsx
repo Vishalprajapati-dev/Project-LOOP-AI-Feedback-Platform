@@ -5,35 +5,77 @@ import FeedbackTable from "../../components/dashboard/FeedbackTable";
 import FeedbackChart from "../../components/dashboard/FeedbackChart";
 import FeedbackPieChart from "../../components/dashboard/FeedbackPieChart";
 
-import { feedbackData } from "../../data/feedbackData";
+import useDashboard from "../../hooks/useDashboard";
+
 
 function Dashboard() {
 
     // =========================
-    // DASHBOARD METRICS
+    // LOAD REAL DASHBOARD DATA
     // =========================
 
-    const totalFeedback = feedbackData.length;
+    const {
+        dashboard,
+        loading,
+        error,
+    } = useDashboard();
 
-    const pendingFeedback = feedbackData.filter(
-        (item) => item.status === "Pending"
-    ).length;
 
-    const resolvedFeedback = feedbackData.filter(
-        (item) =>
-            item.status === "Reviewed" ||
-            item.status === "Approved"
-    ).length;
+    // =========================
+    // LOADING STATE
+    // =========================
 
-    const averageConfidence =
-        totalFeedback > 0
-            ? Math.round(
-                feedbackData.reduce(
-                    (total, item) => total + item.confidence,
-                    0
-                ) / totalFeedback
-            )
-            : 0;
+    if (loading) {
+        return (
+            <div className="dashboard-page">
+
+                <div className="dashboard-container">
+
+                    <p>
+                        Loading dashboard...
+                    </p>
+
+                </div>
+
+            </div>
+        );
+    }
+
+
+    // =========================
+    // ERROR STATE
+    // =========================
+
+    if (error) {
+        return (
+            <div className="dashboard-page">
+
+                <div className="dashboard-container">
+
+                    <p>
+                        {error}
+                    </p>
+
+                </div>
+
+            </div>
+        );
+    }
+
+
+    // =========================
+    // REAL DATABASE STATS
+    // =========================
+
+    const dashboardStats =
+        dashboard?.stats || {
+            totalFeedback: 0,
+            pendingReview: 0,
+            actioned: 0,
+            aiAnalyzed: 0,
+            aiConfidence: 0,
+            highPriority: 0,
+        };
 
 
     // =========================
@@ -43,25 +85,25 @@ function Dashboard() {
     const stats = [
         {
             title: "Total Feedback",
-            value: totalFeedback,
+            value: dashboardStats.totalFeedback,
             icon: "📊",
             growth: "Live data",
         },
         {
             title: "Pending Review",
-            value: pendingFeedback,
+            value: dashboardStats.pendingReview,
             icon: "⏳",
             growth: "Needs attention",
         },
         {
-            title: "Resolved",
-            value: resolvedFeedback,
+            title: "Actioned",
+            value: dashboardStats.actioned,
             icon: "✅",
             growth: "Processed",
         },
         {
             title: "AI Confidence",
-            value: `${averageConfidence}%`,
+            value: `${dashboardStats.aiConfidence}%`,
             icon: "🤖",
             growth: "AI analysis",
         },
@@ -116,11 +158,19 @@ function Dashboard() {
                 <div className="charts-grid">
 
                     <div className="chart-large">
-                        <FeedbackChart />
+                        <FeedbackChart
+                            feedback={
+                                dashboard?.recentFeedback || []
+                            }
+                        />
                     </div>
 
                     <div className="chart-small">
-                        <FeedbackPieChart />
+                        <FeedbackPieChart
+                            statusDistribution={
+                                dashboard?.statusDistribution || {}
+                            }
+                        />
                     </div>
 
                 </div>
@@ -132,7 +182,11 @@ function Dashboard() {
 
                 <div className="feedback-section">
 
-                    <FeedbackTable />
+                    <FeedbackTable
+                        feedback={
+                            dashboard?.recentFeedback || []
+                        }
+                    />
 
                 </div>
 
@@ -141,5 +195,6 @@ function Dashboard() {
         </div>
     );
 }
+
 
 export default Dashboard;

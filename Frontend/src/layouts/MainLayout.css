@@ -22,3 +22,22 @@
 
     box-sizing: border-box;
 }
+
+/* =========================================
+   GLOBAL COMPACT MODE
+========================================= */
+
+html[data-compact] .page-content {
+    padding: 20px 28px 32px;
+}
+
+html[data-compact] .layout-content {
+    /* Keep the existing layout dimensions.
+       Compact mode only reduces spacing. */
+}
+
+html[data-compact] .topbar {
+    height: 58px;
+    padding-left: 24px;
+    padding-right: 24px;
+}

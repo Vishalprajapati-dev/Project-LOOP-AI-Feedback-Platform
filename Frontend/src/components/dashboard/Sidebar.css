@@ -193,3 +193,26 @@ html[data-theme="light"] .sidebar svg {
     color: #0f172a !important;
     stroke: currentColor;
 }
+
+/* =========================================
+   GLOBAL COMPACT MODE
+========================================= */
+
+html[data-compact] .sidebar {
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+html[data-compact] .sidebar h2 {
+    margin-bottom: 28px;
+}
+
+html[data-compact] .sidebar nav {
+    gap: 4px;
+}
+
+html[data-compact] .sidebar .nav-item {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    gap: 12px;
+}

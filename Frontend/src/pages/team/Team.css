@@ -1,0 +1,511 @@
+.team-page {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 42px 34px 60px;
+}
+
+.team-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.team-title-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.team-title-icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  background: #eef4ff;
+  color: var(--color-primary);
+}
+
+.team-page h1 {
+  margin: 0;
+  font-size: 30px;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+
+.team-page-header p {
+  margin: 7px 0 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.team-page-header button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.team-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.team-summary-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  box-shadow: var(--shadow-sm, 0 4px 16px rgba(15, 23, 42, 0.05));
+}
+
+.team-summary-icon {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: #eef4ff;
+  color: var(--color-primary);
+}
+
+.team-summary-card span {
+  display: block;
+  color: var(--text-secondary);
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.team-summary-card strong {
+  display: block;
+  color: var(--text-primary);
+  font-size: 22px;
+}
+
+.team-error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding: 14px 16px;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  background: #fef2f2;
+  color: #991b1b;
+  font-size: 13px;
+}
+
+.team-error span {
+  flex: 1;
+}
+
+.team-error button {
+  border: 0;
+  background: transparent;
+  color: var(--color-primary);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.team-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm, 0 4px 16px rgba(15, 23, 42, 0.05));
+}
+
+.team-card-header {
+  padding: 22px 24px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.team-card-header h2 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 19px;
+}
+
+.team-card-header p {
+  margin: 5px 0 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.team-members {
+  display: flex;
+  flex-direction: column;
+}
+
+.team-member {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.team-member:last-child {
+  border-bottom: 0;
+}
+
+.team-member-avatar {
+  width: 46px;
+  height: 46px;
+  flex: 0 0 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #eaf1ff;
+  color: var(--color-primary);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.team-member-main {
+  min-width: 0;
+  flex: 1;
+}
+
+.team-member-name-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.team-member-name-row h3 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 15px;
+}
+
+.team-role {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.team-role-admin {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+.team-role-analyst {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.team-role-viewer {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.team-member-details {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 8px;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.team-member-details span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.team-member-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.team-member-actions button {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 92px;
+  height: 38px;
+
+  gap: 6px;
+  flex-shrink: 0;
+
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+
+  transition: all .2s ease;
+}
+
+.team-member-actions .btn-outline {
+  background-color: #ffffff;
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  opacity: 1;
+}
+
+.team-edit-btn:hover {
+  background: #2563eb !important;
+  color: white !important;
+  border-color: #2563eb !important;
+}
+
+.team-remove-btn:hover {
+  background: #dc2626 !important;
+  color: white !important;
+  border-color: #dc2626 !important;
+}
+
+.team-loading {
+  min-height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.team-empty {
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  padding: 40px;
+}
+
+.team-empty-icon {
+  width: 58px;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  background: #eef4ff;
+  color: var(--color-primary);
+  margin-bottom: 16px;
+}
+
+.team-empty h3 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 17px;
+}
+
+.team-empty p {
+  margin: 7px 0 20px;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.team-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.team-form-error {
+  padding: 11px 13px;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 13px;
+}
+
+.team-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.team-form-field label {
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.team-form-field select {
+  width: 100%;
+  min-height: 42px;
+  padding: 0 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+}
+
+.team-form-field select:focus {
+  border-color: var(--color-primary);
+}
+
+.team-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.team-delete-warning {
+  margin-top: 12px;
+  color: #b91c1c;
+  font-size: 13px;
+}
+
+@media (max-width: 800px) {
+  .team-page {
+    padding: 28px 18px 40px;
+  }
+
+  .team-page-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .team-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .team-member {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .team-member-actions {
+    width: 100%;
+    padding-left: 64px;
+  }
+
+  .team-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===========================
+   Add Member Action
+=========================== */
+
+button.team-add-member-button {
+  min-height: 40px;
+  padding: 10px 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  background-color: #2563eb;
+  color: #ffffff;
+
+  border: 1px solid #2563eb;
+  border-radius: 8px;
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+
+  cursor: pointer;
+  opacity: 1;
+  visibility: visible;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+button.team-add-member-button:hover:not(:disabled) {
+  background-color: #1d4ed8;
+  border-color: #1d4ed8;
+  color: #ffffff;
+}
+
+button.team-add-member-button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+button.team-add-member-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* =========================================
+   Team Member Edit Action
+   Dedicated styling to prevent global
+   button variants from affecting the action.
+========================================= */
+
+.team-member-actions .team-edit-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  min-height: 38px;
+  padding: 8px 12px;
+
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+
+  border: 1px solid #2563eb !important;
+  border-radius: 8px;
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+
+  opacity: 1 !important;
+  visibility: visible !important;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.team-member-actions .team-edit-button:hover,
+.team-member-actions .team-edit-button:focus-visible {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+
+  border-color: #2563eb !important;
+
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.team-member-actions .team-edit-button:active {
+  background-color: #1d4ed8 !important;
+  color: #ffffff !important;
+  border-color: #1d4ed8 !important;
+}
+
+.team-member-actions .team-edit-button svg {
+  color: currentColor !important;
+  flex-shrink: 0;
+}

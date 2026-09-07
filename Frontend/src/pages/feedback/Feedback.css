@@ -595,3 +595,52 @@
         width: 100%;
     }
 }
+
+/* =====================================================
+   FEEDBACK FORM
+===================================================== */
+
+.feedback-form-input {
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 7px;
+    padding: 12px 14px;
+    border: 1px solid var(--border-color, #dbe2ea);
+    border-radius: 10px;
+    background: var(--bg-input, #ffffff);
+    color: var(--text-primary, #0f172a);
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.feedback-form-input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+textarea.feedback-form-input {
+    resize: vertical;
+    line-height: 1.6;
+}
+
+.feedback-form-input::placeholder {
+    color: #94a3b8;
+}
+
+.analysis-modal label {
+    display: block;
+    color: var(--text-primary, #0f172a);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.view-analysis-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.feedback-card {
+    overflow: hidden;
+}

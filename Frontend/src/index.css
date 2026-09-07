@@ -150,3 +150,22 @@ html[data-theme="dark"] .content,
 html[data-theme="dark"] .page-content {
     background: #0f172a !important;
 }
+
+html.dark,
+html.dark body {
+    background: #0f172a;
+    color: #f8fafc;
+}
+
+html.compact .main-content {
+    padding-top: 12px;
+}
+
+html.compact .dashboard-page,
+html.compact .feedback-page,
+html.compact .analytics-page,
+html.compact .reports-page,
+html.compact .profile-page,
+html.compact .settings-page {
+    gap: 12px;
+}

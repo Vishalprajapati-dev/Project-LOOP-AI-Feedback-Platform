@@ -1,142 +1,234 @@
 import { useState } from "react";
 import "./FeedbackTable.css";
 
-import { feedbackData } from "../../data/feedbackData";
+function FeedbackTable({ feedback = [] }) {
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState("All");
 
-function FeedbackTable() {
-    const [search, setSearch] = useState("");
-    const [status, setStatus] = useState("All");
+  const filteredFeedback = feedback.filter(
+    (item) => {
+      const customer =
+        item.customerLabel ||
+        "Anonymous Customer";
 
-    const filteredFeedback = feedbackData.filter((item) => {
-        const matchName = item.name
-            .toLowerCase()
-            .includes(search.toLowerCase());
+      const matchName = customer
+        .toLowerCase()
+        .includes(search.toLowerCase());
 
-        const matchStatus =
-            status === "All" || item.status === status;
+      const matchStatus =
+        status === "All" ||
+        item.status === status;
 
-        return matchName && matchStatus;
-    });
+      return matchName && matchStatus;
+    }
+  );
 
-    const getInitials = (name) => {
-        return name
-            .split(" ")
-            .map((word) => word[0])
-            .join("")
-            .toUpperCase();
-    };
+  const getInitials = (name) => {
+    if (!name) return "U";
 
-    const getStatusClass = (status) => {
-        switch (status) {
-            case "Pending":
-                return "status-badge status-pending";
+    return name
+      .split(" ")
+      .map((word) => word[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
 
-            case "Reviewed":
-                return "status-badge status-reviewed";
+  const getStatusClass = (status) => {
+    switch (status) {
+      case "NEW":
+        return "status-badge status-pending";
 
-            case "Approved":
-                return "status-badge status-approved";
+      case "REVIEWED":
+        return "status-badge status-reviewed";
 
-            default:
-                return "status-badge";
-        }
-    };
+      case "ACTIONED":
+        return "status-badge status-approved";
 
-    return (
-        <section className="feedback-section">
+      default:
+        return "status-badge";
+    }
+  };
 
-            <h2>Recent Feedback</h2>
+  const formatSentiment = (sentiment) => {
+    switch (sentiment) {
+      case "POS":
+        return "Positive";
 
-            <div className="feedback-controls">
+      case "NEG":
+        return "Negative";
 
-                <div className="feedback-search">
-                    <input
-                        type="text"
-                        placeholder="Search by name..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                    />
-                </div>
+      case "NEU":
+        return "Neutral";
 
-                <select
-                    className="feedback-filter"
-                    value={status}
-                    onChange={(e) => setStatus(e.target.value)}
-                >
-                    <option value="All">All</option>
-                    <option value="Pending">Pending</option>
-                    <option value="Reviewed">Reviewed</option>
-                    <option value="Approved">Approved</option>
-                </select>
+      default:
+        return "Not analyzed";
+    }
+  };
 
-            </div>
+  const formatPriority = (priority) => {
+    switch (priority) {
+      case "HIGH":
+        return "High";
 
-            <div className="feedback-table-wrapper">
+      case "MEDIUM":
+        return "Medium";
 
-                <table className="feedback-table">
+      case "LOW":
+        return "Low";
 
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
+      default:
+        return "Medium";
+    }
+  };
 
-                    <tbody>
+  const formatStatus = (status) => {
+    switch (status) {
+      case "NEW":
+        return "New";
 
-                        {filteredFeedback.length > 0 ? (
+      case "REVIEWED":
+        return "Reviewed";
 
-                            filteredFeedback.map((item) => (
+      case "ACTIONED":
+        return "Actioned";
 
-                                <tr key={item.id}>
+      default:
+        return status || "Unknown";
+    }
+  };
 
-                                    <td>
-                                        <div className="feedback-user">
+  return (
+    <section className="feedback-section">
+      <h2>Recent Feedback</h2>
 
-                                            <div className="feedback-avatar">
-                                                {getInitials(item.name)}
-                                            </div>
+      <div className="feedback-controls">
+        <div className="feedback-search">
+          <input
+            type="text"
+            placeholder="Search by customer..."
+            value={search}
+            onChange={(e) =>
+              setSearch(e.target.value)
+            }
+          />
+        </div>
 
-                                            <span className="feedback-name">
-                                                {item.name}
-                                            </span>
+        <select
+          className="feedback-filter"
+          value={status}
+          onChange={(e) =>
+            setStatus(e.target.value)
+          }
+        >
+          <option value="All">
+            All
+          </option>
 
-                                        </div>
-                                    </td>
+          <option value="NEW">
+            New
+          </option>
 
-                                    <td>
-                                        <span
-                                            className={getStatusClass(item.status)}
-                                        >
-                                            {item.status}
-                                        </span>
-                                    </td>
+          <option value="REVIEWED">
+            Reviewed
+          </option>
 
-                                </tr>
+          <option value="ACTIONED">
+            Actioned
+          </option>
+        </select>
+      </div>
 
-                            ))
+      <div className="feedback-table-wrapper">
+        <table className="feedback-table">
+          <thead>
+            <tr>
+              <th>Customer</th>
+              <th>Status</th>
+              <th>Sentiment</th>
+              <th>Priority</th>
+              <th>Confidence</th>
+            </tr>
+          </thead>
 
-                        ) : (
+          <tbody>
+            {filteredFeedback.length > 0 ? (
+              filteredFeedback.map(
+                (item) => {
+                  const customer =
+                    item.customerLabel ||
+                    "Anonymous Customer";
 
-                            <tr>
-                                <td
-                                    colSpan="2"
-                                    className="feedback-empty"
-                                >
-                                    No Feedback Found 😔
-                                </td>
-                            </tr>
+                  return (
+                    <tr
+                      key={
+                        item.id ||
+                        item._id
+                      }
+                    >
+                      <td>
+                        <div className="feedback-user">
+                          <div className="feedback-avatar">
+                            {getInitials(
+                              customer
+                            )}
+                          </div>
 
+                          <span className="feedback-name">
+                            {customer}
+                          </span>
+                        </div>
+                      </td>
+
+                      <td>
+                        <span
+                          className={getStatusClass(
+                            item.status
+                          )}
+                        >
+                          {formatStatus(
+                            item.status
+                          )}
+                        </span>
+                      </td>
+
+                      <td>
+                        {formatSentiment(
+                          item.sentiment
                         )}
+                      </td>
 
-                    </tbody>
+                      <td>
+                        {formatPriority(
+                          item.aiPriority
+                        )}
+                      </td>
 
-                </table>
-
-            </div>
-
-        </section>
-    );
+                      <td>
+                        {typeof item.aiConfidence ===
+                        "number"
+                          ? `${item.aiConfidence}%`
+                          : "—"}
+                      </td>
+                    </tr>
+                  );
+                }
+              )
+            ) : (
+              <tr>
+                <td
+                  colSpan="5"
+                  className="feedback-empty"
+                >
+                  No feedback found.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
 }
 
 export default FeedbackTable;

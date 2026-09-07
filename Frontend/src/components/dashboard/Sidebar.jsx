@@ -5,6 +5,7 @@ import {
     MessageSquare,
     BarChart3,
     FileText,
+    Users,
     User,
     Settings,
 } from "lucide-react";
@@ -32,6 +33,11 @@ function Sidebar() {
             title: "Reports",
             icon: FileText,
             path: "/reports",
+        },
+        {
+            title: "Team",
+            icon: Users,
+            path: "/team",
         },
         {
             title: "Profile",
