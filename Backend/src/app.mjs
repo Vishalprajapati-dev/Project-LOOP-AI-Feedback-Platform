@@ -17,6 +17,15 @@ import workspaceRoutes from "./routes/workspace.routes.mjs";
 const app = express();
 app.use(helmet());
 
+app.use(
+  cors({
+    origin: config.frontendUrl,
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
+);
+
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 100,
@@ -29,15 +38,6 @@ const apiLimiter = rateLimit({
 });
 
 app.use("/api", apiLimiter);
-
-app.use(
-  cors({
-   origin: config.frontendUrl,
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  }),
-);
 
 app.use(express.json());
 app.use(cookieParser());
@@ -52,7 +52,6 @@ app.use("/api/workspace", workspaceRoutes);
 app.use("/api/settings", settingsRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/analytics", analyticsRoutes);
-
 
 app.get("/", (req, res) => {
   res.status(200).json({
